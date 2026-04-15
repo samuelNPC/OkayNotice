@@ -8,11 +8,12 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: {
-    default: "Uganda Finance & Tech Hub",
-    template: "%s | Uganda Finance & Tech Hub"
+    default: "OkayNotice | Tech News, Deals & Financial Tools",
+    template: "%s | OkayNotice"
   },
   description: "Your premier destination for tech news, financial calculators, and gadget deals linking to Kabale Online.",
 };
+
 
 export default function RootLayout({
   children,
