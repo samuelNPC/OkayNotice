@@ -1,6 +1,6 @@
-import { initializeApp, getApps, getApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
+import { initializeApp, getApps, getApp, FirebaseApp } from "firebase/app";
+import { getFirestore, Firestore } from "firebase/firestore";
+import { getAuth, Auth } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -11,12 +11,13 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Initialize Firebase ONLY if the API key exists (prevents build crashes)
-const app = (typeof window !== "undefined" && !getApps().length && firebaseConfig.apiKey) 
-  ? initializeApp(firebaseConfig) 
-  : getApps().length ? getApp() : null;
+// 1. Initialize the Firebase App Singleton
+// This checks if an app already exists to prevent Next.js hot-reload crashes,
+// while ensuring it initializes correctly on both Server (SSR/Build) and Client.
+const app: FirebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
-const db = app ? getFirestore(app) : null as any;
-const auth = app ? getAuth(app) : null as any;
+// 2. Initialize Core Services
+const db: Firestore = getFirestore(app);
+const auth: Auth = getAuth(app);
 
 export { app, db, auth };
