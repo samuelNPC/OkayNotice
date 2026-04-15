@@ -11,9 +11,12 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Initialize Firebase only if it hasn't been initialized yet (prevents Next.js hot-reload errors)
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-const db = getFirestore(app);
-const auth = getAuth(app);
+// Initialize Firebase ONLY if the API key exists (prevents build crashes)
+const app = (typeof window !== "undefined" && !getApps().length && firebaseConfig.apiKey) 
+  ? initializeApp(firebaseConfig) 
+  : getApps().length ? getApp() : null;
+
+const db = app ? getFirestore(app) : null as any;
+const auth = app ? getAuth(app) : null as any;
 
 export { app, db, auth };
