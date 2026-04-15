@@ -12,6 +12,7 @@ import Link from "next/link";
 export default function CreatePostPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
 
   // Form State
   const [title, setTitle] = useState("");
@@ -25,12 +26,17 @@ export default function CreatePostPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
 
+  // Hydration sync
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Security Check
   useEffect(() => {
-    if (!authLoading && !user) {
+    if (mounted && !authLoading && !user) {
       router.push("/admin/login");
     }
-  }, [user, authLoading, router]);
+  }, [user, authLoading, mounted, router]);
 
   // Auto-generate slug when title changes
   useEffect(() => {
@@ -55,7 +61,6 @@ export default function CreatePostPage() {
     }
 
     try {
-      // Save to Firestore
       await addDoc(collection(db, "posts"), {
         title,
         slug,
@@ -64,13 +69,12 @@ export default function CreatePostPage() {
         category,
         coverImage,
         authorEmail: user?.email,
-        published: true, // Auto-publish for now
+        published: true,
         createdAt: serverTimestamp(),
       });
 
       setMessage({ type: "success", text: "Post created successfully!" });
       
-      // Clear form after 1 second and redirect
       setTimeout(() => {
         router.push("/admin");
       }, 1500);
@@ -83,7 +87,17 @@ export default function CreatePostPage() {
     }
   };
 
-  if (authLoading || !user) return null;
+  // PREVENT HYDRATION CRASH: Show a stable loader while Firebase initializes
+  if (!mounted || authLoading) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center text-slate-500 space-y-4">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        <p>Verifying access...</p>
+      </div>
+    );
+  }
+
+  if (!user) return null;
 
   return (
     <div className="max-w-4xl mx-auto py-10 px-4">
@@ -108,7 +122,7 @@ export default function CreatePostPage() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           
-          {/* Cover Image Uploader */}
+          {/* Cloudinary Image Uploader */}
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">Cover Image</label>
             <ImageUpload onUploadSuccess={(url) => setCoverImage(url)} />
@@ -143,7 +157,7 @@ export default function CreatePostPage() {
             </div>
           </div>
 
-          {/* Slug (Read-only but visible so you know what the URL will be) */}
+          {/* Slug */}
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">URL Slug</label>
             <div className="flex bg-slate-50 border border-slate-300 rounded-lg overflow-hidden">
@@ -182,9 +196,6 @@ export default function CreatePostPage() {
               placeholder="Write your full article here..."
               required
             />
-            <p className="text-xs text-slate-500 mt-2">
-              * Since you are editing on mobile, a standard text area is used here. You can add HTML tags like &lt;h2&gt; or &lt;br&gt; to format paragraphs.
-            </p>
           </div>
 
           {/* Submit Button */}
