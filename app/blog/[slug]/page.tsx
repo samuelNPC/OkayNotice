@@ -4,6 +4,7 @@ import Link from "next/link";
 import { collection, getDocs, query, where, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { notFound } from "next/navigation";
+import ReactMarkdown from "react-markdown";
 
 // Revalidate page occasionally to get fresh content
 export const revalidate = 60;
@@ -14,14 +15,14 @@ async function getPost(slug: string) {
   const snapshot = await getDocs(q);
 
   if (snapshot.empty) return null;
-  
+
   return { id: snapshot.docs[0].id, ...snapshot.docs[0].data() } as any;
 }
 
 // Generate dynamic SEO metadata
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const post = await getPost(params.slug);
-  
+
   if (!post) return { title: "Post Not Found" };
 
   return {
@@ -70,10 +71,9 @@ export default async function SinglePostPage({ params }: { params: { slug: strin
         </div>
       )}
 
-      {/* Post Content */}
+      {/* Post Content rendered safely via ReactMarkdown */}
       <div className="prose prose-lg prose-slate max-w-none mb-12 bg-white p-6 md:p-10 rounded-2xl shadow-sm border border-slate-200">
-        {/* We use dangerouslySetInnerHTML to render basic HTML tags (like <br> or <h2>) from the mobile textarea */}
-        <div dangerouslySetInnerHTML={{ __html: post.content.replace(/\n/g, "<br />") }} />
+        <ReactMarkdown>{post.content}</ReactMarkdown>
       </div>
 
       {/* AdSense Placement Area */}
