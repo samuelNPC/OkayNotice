@@ -6,7 +6,7 @@ import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useAuth } from "@/components/context/AuthContext";
 import Link from "next/link";
-import { FileText, LogOut, ShoppingBag, PlusCircle } from "lucide-react";
+import { FileText, LogOut, ShoppingBag, PlusCircle, Settings } from "lucide-react";
 
 export default function AdminDashboard() {
   const { user, loading } = useAuth();
@@ -50,10 +50,16 @@ export default function AdminDashboard() {
             <FileText size={32} />
           </div>
           <h2 className="text-xl font-bold text-slate-900">Blog Posts</h2>
-          <p className="text-slate-500 text-sm">Write, edit, and publish your tech and finance articles to drive SEO traffic.</p>
-          <Link href="/admin/upload" className="flex items-center justify-center w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition mt-auto">
-            <PlusCircle size={18} className="mr-2" /> Create New Post
-          </Link>
+          <p className="text-slate-500 text-sm mb-4">Write, edit, and publish your tech and finance articles to drive SEO traffic.</p>
+          
+          <div className="flex flex-col w-full space-y-2 mt-auto">
+            <Link href="/admin/posts" className="flex items-center justify-center w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 text-blue-600 font-medium py-2 rounded-lg transition">
+              <Settings size={18} className="mr-2" /> Manage Posts
+            </Link>
+            <Link href="/admin/upload" className="flex items-center justify-center w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition">
+              <PlusCircle size={18} className="mr-2" /> Create New Post
+            </Link>
+          </div>
         </div>
 
         {/* Deals Management Card */}
@@ -62,10 +68,16 @@ export default function AdminDashboard() {
             <ShoppingBag size={32} />
           </div>
           <h2 className="text-xl font-bold text-slate-900">Kabale Deals</h2>
-          <p className="text-slate-500 text-sm">Curate your top gadget deals and redirect users to Kabale Online.</p>
-          <Link href="/admin/deals" className="flex items-center justify-center w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 rounded-lg transition mt-auto">
-            <PlusCircle size={18} className="mr-2" /> Add New Deal
-          </Link>
+          <p className="text-slate-500 text-sm mb-4">Curate your top gadget deals and redirect users to Kabale Online.</p>
+          
+          <div className="flex flex-col w-full space-y-2 mt-auto">
+            <Link href="/admin/deals/manage" className="flex items-center justify-center w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 text-green-600 font-medium py-2 rounded-lg transition">
+              <Settings size={18} className="mr-2" /> Manage Deals
+            </Link>
+            <Link href="/admin/deals" className="flex items-center justify-center w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 rounded-lg transition">
+              <PlusCircle size={18} className="mr-2" /> Add New Deal
+            </Link>
+          </div>
         </div>
       </div>
     </div>
