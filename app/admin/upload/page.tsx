@@ -6,6 +6,7 @@ import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/components/context/AuthContext";
 import ImageUpload from "@/components/admin/ImageUpload";
+import MarkdownEditor from "@/components/admin/MarkdownEditor";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 
@@ -73,7 +74,7 @@ export default function CreatePostPage() {
         createdAt: serverTimestamp(),
       });
 
-      setMessage({ type: "success", text: "Post created successfully!" });
+      setMessage({ type: "success", text: "Post created successfully." });
       
       setTimeout(() => {
         router.push("/admin");
@@ -186,15 +187,12 @@ export default function CreatePostPage() {
             />
           </div>
 
-          {/* Main Content */}
+          {/* Main Content using Markdown Editor */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Content (Use Markdown/HTML or plain text)</label>
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-600 outline-none h-64 md:h-96"
-              placeholder="Write your full article here..."
-              required
+            <label className="block text-sm font-medium text-slate-700 mb-1">Content</label>
+            <MarkdownEditor 
+              value={content} 
+              onChange={(val) => setContent(val)} 
             />
           </div>
 
