@@ -1,79 +1,244 @@
 import Link from "next/link";
-import { collection, getDocs, query, orderBy, limit } from "firebase/firestore";
+import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import PostCard from "@/components/cards/PostCard";
-import DealCard from "@/components/cards/DealCard";
-import { Calculator, Smartphone, TrendingUp, ArrowRight } from "lucide-react";
 
-export const revalidate = 60;
+// Force dynamic rendering so new articles appear instantly and trending shuffles
+export const dynamic = "force-dynamic";
 
-async function getHomeData() {
-  const postsQ = query(collection(db, "posts"), orderBy("createdAt", "desc"), limit(3));
-  const dealsQ = query(collection(db, "deals"), orderBy("createdAt", "desc"), limit(3));
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: { category?: string };
+}) {
+  const activeCategory = searchParams.category || "All";
+
+  // 1. Fetch Posts from Firestore
+  const postsRef = collection(db, "posts");
+  const q = query(postsRef, orderBy("createdAt", "desc"));
+  const snapshot = await getDocs(q);
   
-  const [postsSnap, dealsSnap] = await Promise.all([getDocs(postsQ), getDocs(dealsQ)]);
-  
-  return {
-    posts: postsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })) as any[],
-    deals: dealsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })) as any[]
-  };
-}
+  const allPosts = snapshot.docs.map((doc) => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      ...data,
+      // Safely parse Firestore timestamps
+      createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : new Date(),
+    };
+  }) as any[];
 
-export default async function Home() {
-  const { posts, deals } = await getHomeData();
+  // Filter by category if needed
+  const filteredPosts = activeCategory === "All" 
+    ? allPosts 
+    : allPosts.filter(post => post.category === activeCategory);
+
+  // 2. Separate Featured vs Regular
+  const featuredPost = filteredPosts.find((p) => p.isFeatured) || filteredPosts[0]; // Fallback to newest if none featured
+  const regularPosts = filteredPosts.filter((p) => p.id !== featuredPost?.id);
+
+  const topRecentPosts = regularPosts.slice(0, 2);
+  const feedPosts = regularPosts.slice(2);
+
+  // 3. Trending Logic (Random shuffle on refresh, strict limit of 12)
+  const trendingPosts = [...allPosts]
+    .sort(() => 0.5 - Math.random())
+    .slice(0, 12);
+
+  const CATEGORIES = ["All", "Tech", "Finance", "Deals"];
 
   return (
-    <div className="space-y-20 pb-20">
-      {/* Hero */}
-      <section className="text-center py-12 space-y-6">
-        <h1 className="text-5xl md:text-7xl font-black text-slate-900 tracking-tight">
-          Stay <span className="text-blue-600">Noticed.</span>
-        </h1>
-        <p className="text-xl text-slate-600 max-w-2xl mx-auto font-medium">
-          The ultimate hub for Uganda's tech news, financial calculators, and the best deals from Kabale Online.
-        </p>
-      </section>
-
-      {/* Tools Section */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <ToolLink href="/tools/momo-charges-calculator" icon={<Smartphone className="text-yellow-500" />} title="MoMo Charges" desc="MTN & Airtel Fee Calculator" />
-        <ToolLink href="/tools/loan-calculator" icon={<Calculator className="text-blue-500" />} title="Loan Calculator" desc="Estimate monthly repayments" />
-        <ToolLink href="/tools/profit-calculator" icon={<TrendingUp className="text-green-500" />} title="Profit Margin" desc="Business profit tools" />
-      </section>
-
-      {/* Latest Blog Posts */}
-      <section>
-        <div className="flex justify-between items-end mb-8">
-          <h2 className="text-3xl font-bold">Latest Stories</h2>
-          <Link href="/blog" className="text-blue-600 font-semibold flex items-center">All Posts <ArrowRight size={18} className="ml-1"/></Link>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {posts.map(post => <PostCard key={post.id} post={post} />)}
-        </div>
-      </section>
-
-      {/* Top Deals */}
-      <section className="bg-slate-900 -mx-4 px-4 py-16 sm:-mx-8 sm:px-8 rounded-[3rem]">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex justify-between items-end mb-8">
-            <h2 className="text-3xl font-bold text-white">Hot Deals</h2>
-            <Link href="/deals" className="text-blue-400 font-semibold flex items-center">Shop All <ArrowRight size={18} className="ml-1"/></Link>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {deals.map(deal => <DealCard key={deal.id} deal={deal} />)}
+    <div className="bg-slate-50 min-h-screen pb-20">
+      
+      {/* Category Navigation */}
+      <nav className="bg-white border-b border-slate-200 sticky top-16 z-30 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex overflow-x-auto py-3 space-x-2 scrollbar-hide">
+            {CATEGORIES.map((category) => (
+              <Link 
+                key={category}
+                href={category === "All" ? "/" : `/?category=${category}`}
+                className={`whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                  activeCategory === category 
+                    ? "bg-slate-900 text-white shadow-sm" 
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                }`}
+              >
+                {category === "All" ? "All Stories" : category}
+              </Link>
+            ))}
           </div>
         </div>
-      </section>
+      </nav>
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+
+        {/* Hero Grid (Featured + Top 2 Recent) */}
+        {activeCategory === "All" && featuredPost && (
+          <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
+            
+            {/* Main Featured Card */}
+            <Link 
+              href={`/blog/${featuredPost.slug}`} 
+              className="lg:col-span-2 group relative rounded-2xl overflow-hidden shadow-sm h-[400px] lg:h-[500px]"
+            >
+              <img 
+                src={featuredPost.coverImage || "/api/placeholder/800/600"} 
+                alt={featuredPost.title} 
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent" />
+              <div className="absolute bottom-0 left-0 p-6 md:p-8 w-full">
+                <span className="inline-block bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide mb-4">
+                  {featuredPost.category}
+                </span>
+                <h2 className="text-2xl md:text-4xl font-bold text-white leading-tight mb-2 group-hover:underline decoration-white underline-offset-4">
+                  {featuredPost.title}
+                </h2>
+                <p className="text-slate-200 line-clamp-2 md:text-lg">
+                  {featuredPost.excerpt}
+                </p>
+              </div>
+            </Link>
+
+            {/* Sub Column for Top Recent */}
+            <div className="flex flex-col gap-6 h-[400px] lg:h-[500px]">
+              {topRecentPosts.map((post) => (
+                <Link 
+                  key={post.id} 
+                  href={`/blog/${post.slug}`} 
+                  className="group flex-1 relative rounded-2xl overflow-hidden shadow-sm bg-white"
+                >
+                  <img 
+                    src={post.coverImage || "/api/placeholder/400/300"} 
+                    alt={post.title} 
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent" />
+                  <div className="absolute bottom-0 left-0 p-5 w-full">
+                    <span className="text-blue-400 text-xs font-bold uppercase tracking-wide mb-2 block">
+                      {post.category}
+                    </span>
+                    <h3 className="text-lg font-bold text-white leading-tight group-hover:underline decoration-white underline-offset-4">
+                      {post.title}
+                    </h3>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Layout Split (Main Feed + Sidebar) */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+
+          {/* Main Feed Column */}
+          <div className="lg:col-span-2">
+            <h2 className="text-2xl font-bold text-slate-900 mb-6 border-b border-slate-200 pb-2">
+              {activeCategory === "All" ? "Latest Articles" : `${activeCategory} Articles`}
+            </h2>
+
+            <div className="space-y-8">
+              {feedPosts.length > 0 ? (
+                feedPosts.map((post) => {
+                  const dateStr = post.createdAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+                  return (
+                    <Link 
+                      key={post.id} 
+                      href={`/blog/${post.slug}`} 
+                      className="group flex flex-col sm:flex-row gap-6 bg-white p-4 rounded-2xl shadow-sm border border-slate-100 hover:border-slate-300 transition-colors"
+                    >
+                      <div className="w-full sm:w-1/3 aspect-[4/3] rounded-xl overflow-hidden relative shrink-0">
+                        <img 
+                          src={post.coverImage || "/api/placeholder/400/300"} 
+                          alt={post.title} 
+                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                        />
+                      </div>
+                      <div className="flex flex-col justify-center">
+                        <div className="text-sm font-medium mb-2 text-slate-500">
+                          <span className="text-blue-600 font-bold uppercase tracking-wide">{post.category}</span>
+                          <span className="mx-2">&bull;</span>
+                          {dateStr}
+                        </div>
+                        <h3 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-blue-600 transition-colors leading-snug">
+                          {post.title}
+                        </h3>
+                        <p className="text-slate-600 line-clamp-2">
+                          {post.excerpt}
+                        </p>
+                      </div>
+                    </Link>
+                  );
+                })
+              ) : (
+                <div className="text-center py-16 bg-white rounded-2xl border border-slate-200">
+                  <p className="text-slate-500 text-lg">No articles found for <span className="font-bold text-slate-800">{activeCategory}</span> yet.</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Sidebar */}
+          <aside className="space-y-8">
+            
+            {/* Newsletter */}
+            <div className="bg-slate-900 text-white p-8 rounded-2xl shadow-sm">
+              <h3 className="text-xl font-bold mb-2">The Weekly Drop</h3>
+              <p className="text-slate-400 text-sm mb-6">Join our community getting tech alerts and market updates.</p>
+              <form className="space-y-3">
+                <input 
+                  type="email" 
+                  placeholder="Your email address" 
+                  required 
+                  className="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button 
+                  type="submit" 
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition"
+                >
+                  Subscribe Free
+                </button>
+              </form>
+              <p className="text-slate-500 text-xs mt-4 text-center">
+                No spam. Unsubscribe anytime.
+              </p>
+            </div>
+
+            {/* Trending Now */}
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+              <h3 className="text-lg font-bold text-slate-900 mb-6 border-b border-slate-100 pb-2">Trending Now</h3>
+              <div className="flex flex-col space-y-4">
+                {trendingPosts.map((post) => {
+                   const dateStr = post.createdAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                   return (
+                     <Link 
+                       key={post.id} 
+                       href={`/blog/${post.slug}`} 
+                       className="group flex gap-4 items-center pb-4 border-b border-slate-100 last:border-0 last:pb-0"
+                     >
+                       <img 
+                         src={post.coverImage || "/api/placeholder/100/100"} 
+                         alt={post.title}
+                         className="w-16 h-16 rounded-lg object-cover bg-slate-100 shrink-0" 
+                       />
+                       <div>
+                         <h4 className="text-sm font-bold text-slate-800 group-hover:text-blue-600 transition-colors line-clamp-2 leading-snug">
+                           {post.title}
+                         </h4>
+                         <span className="text-xs text-slate-500 mt-1 block">
+                           {dateStr}
+                         </span>
+                       </div>
+                     </Link>
+                   );
+                })}
+              </div>
+            </div>
+
+          </aside>
+        </div>
+      </main>
     </div>
-  );
-}
-
-function ToolLink({ href, icon, title, desc }: any) {
-  return (
-    <Link href={href} className="p-8 bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-md transition group">
-      <div className="mb-4 p-3 bg-slate-50 w-fit rounded-2xl group-hover:scale-110 transition">{icon}</div>
-      <h3 className="text-xl font-bold mb-1">{title}</h3>
-      <p className="text-slate-500 text-sm">{desc}</p>
-    </Link>
   );
 }
