@@ -76,9 +76,8 @@ export default function Footer() {
               
               {/* OkayNotice Logo & Link */}
               <a href="https://okaynotice.com" className="flex items-center space-x-3 group">
-                <div className="w-10 h-10 bg-blue-50 rounded-xl overflow-hidden border border-blue-100 flex items-center justify-center shrink-0">
-                  {/* REPLACE SRC WITH ACTUAL OKAYNOTICE LOGO */}
-                  <img src="/api/placeholder/40/40" alt="OkayNotice Logo" className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
+                <div className="w-10 h-10 bg-white rounded-xl overflow-hidden border border-blue-100 flex items-center justify-center shrink-0">
+                  <img src="/512.png" alt="OkayNotice Logo" className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
                 </div>
                 <span className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
                   okaynotice.com
@@ -89,9 +88,8 @@ export default function Footer() {
 
               {/* Kabale Online Logo & Link */}
               <a href="https://www.kabaleonline.com" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 group">
-                <div className="w-10 h-10 bg-orange-50 rounded-xl overflow-hidden border border-orange-100 flex items-center justify-center shrink-0">
-                  {/* REPLACE SRC WITH ACTUAL KABALE ONLINE LOGO */}
-                  <img src="/api/placeholder/40/40" alt="Kabale Online Logo" className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
+                <div className="w-10 h-10 bg-white rounded-xl overflow-hidden border border-orange-100 flex items-center justify-center shrink-0">
+                  <img src="/kabaleonline.png" alt="Kabale Online Logo" className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
                 </div>
                 <span className="font-bold text-slate-900 group-hover:text-orange-600 transition-colors">
                   www.kabaleonline.com
