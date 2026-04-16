@@ -19,7 +19,7 @@ const serializeDoc = (doc: any) => {
 
 export default async function HomePage() {
   try {
-    // Fetch Latest 9 Articles (works for both mobile 10-item list constraint and desktop 3x3)
+    // Fetch Latest 9 Articles
     const postsRef = collection(db, "posts");
     const latestQuery = query(postsRef, orderBy("createdAt", "desc"), limit(9));
     const latestSnapshot = await getDocs(latestQuery);
@@ -46,20 +46,21 @@ export default async function HomePage() {
           
           {/* --- HERO SECTION --- */}
           {/* Mobile Hero */}
-          <section className="mb-10 md:hidden">
-            <h1 className="text-2xl font-black text-slate-900 mb-6 tracking-tight">
-              What are you interested in today?
+          <section className="mb-10 md:hidden flex flex-col items-center text-center">
+            <h1 className="text-3xl font-black text-slate-900 mb-8 tracking-tight leading-tight">
+              What are you <br />
+              <span className="text-blue-700">Interested in Today?</span>
             </h1>
-            <div className="grid grid-cols-2 gap-4">
-              <Link href="/blog" className="flex items-center justify-center space-x-3 bg-white border border-slate-100 shadow-sm py-4 rounded-2xl hover:border-blue-200 transition">
+            <div className="grid grid-cols-2 gap-4 w-full">
+              <Link href="/blog" className="flex items-center justify-center space-x-3 bg-white border border-slate-200 shadow-sm py-4 rounded-2xl hover:border-blue-300 transition-colors">
                 <FileText size={20} className="text-orange-500" />
                 <span className="font-bold text-slate-800">Blog</span>
               </Link>
-              <Link href="/tools" className="flex items-center justify-center space-x-3 bg-white border border-slate-100 shadow-sm py-4 rounded-2xl hover:border-blue-200 transition">
+              <Link href="/tools" className="flex items-center justify-center space-x-3 bg-white border border-slate-200 shadow-sm py-4 rounded-2xl hover:border-blue-300 transition-colors">
                 <Wrench size={20} className="text-pink-500" />
                 <span className="font-bold text-slate-800">Tools</span>
               </Link>
-              <Link href="/deals" className="flex items-center justify-center space-x-3 bg-white border border-slate-100 shadow-sm py-4 rounded-2xl hover:border-blue-200 transition">
+              <Link href="/deals" className="flex items-center justify-center space-x-3 bg-white border border-slate-200 shadow-sm py-4 rounded-2xl hover:border-blue-300 transition-colors">
                 <ShoppingBag size={20} className="text-green-500" />
                 <span className="font-bold text-slate-800">Deals</span>
               </Link>
@@ -70,7 +71,8 @@ export default async function HomePage() {
           {/* Desktop Hero */}
           <section className="hidden md:flex mb-14 text-left flex-col lg:flex-row lg:items-center justify-between gap-6">
             <h1 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
-              What are you <span className="text-blue-700">Interested in Today?</span>
+              What are you <br />
+              <span className="text-blue-700">Interested in Today?</span>
             </h1>
             <div className="grid grid-cols-3 gap-4 w-full lg:w-auto shrink-0">
               <Link href="/blog" className="flex items-center justify-center px-8 space-x-2 bg-white border border-slate-200 shadow-sm py-4 rounded-2xl hover:border-blue-300 hover:shadow-md transition-all">
@@ -88,7 +90,8 @@ export default async function HomePage() {
             </div>
           </section>
 
-          <hr className="hidden md:block border-slate-200 mb-12" />
+          {/* Universal Divider */}
+          <hr className="border-slate-200 mb-10 md:mb-12" />
 
           {/* --- FEATURED SECTION --- */}
           {/* Mobile Featured (Carousel) */}
@@ -136,18 +139,18 @@ export default async function HomePage() {
 
           {/* --- HAND PICKED DEALS --- */}
           {deals.length > 0 && (
-            <section className="mb-12 md:mb-14 md:bg-white md:p-8 md:rounded-3xl md:border border-slate-200 md:shadow-sm">
-              <div className="flex items-center justify-between mb-4 md:mb-6">
+            <section className="mb-12 md:mb-14 bg-white p-5 md:p-8 rounded-3xl border border-slate-200 shadow-sm">
+              <div className="flex items-center justify-between mb-5 md:mb-6">
                 <h2 className="text-xl md:text-2xl font-black text-slate-800">Hand picked deals</h2>
                 <Link href="/deals" className="text-sm text-blue-600 font-bold hover:underline">View All</Link>
               </div>
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
                 {deals.map(deal => (
-                  <div key={deal.id} className="bg-white md:bg-slate-50 rounded-2xl border border-slate-100 overflow-hidden flex flex-col shadow-sm md:shadow-none hover:shadow-md transition-shadow">
+                  <div key={deal.id} className="bg-slate-50 rounded-2xl border border-slate-100 overflow-hidden flex flex-col hover:shadow-md transition-shadow">
                     <div className="aspect-square relative">
                       <img src={deal.image} alt={deal.title} className="absolute inset-0 w-full h-full object-cover" />
                     </div>
-                    <div className="p-3 md:p-4 flex flex-col flex-grow">
+                    <div className="p-4 flex flex-col flex-grow">
                       <h3 className="text-sm font-bold text-slate-900 line-clamp-2 mb-2">{deal.title}</h3>
                       <p className="text-blue-700 font-black text-sm mt-auto">UGX {deal.price}</p>
                     </div>
@@ -161,33 +164,40 @@ export default async function HomePage() {
           <section className="mb-16">
             <h2 className="text-xl md:text-2xl font-black text-slate-800 mb-6">Latest Articles</h2>
             
-            {/* Mobile Latest Articles (List) */}
-            <div className="md:hidden space-y-6">
-              {latestPosts.map(post => (
-                <Link key={post.id} href={`/blog/${post.slug}`} className="flex gap-4 items-center group">
-                  <div className="w-24 h-24 shrink-0 rounded-2xl overflow-hidden bg-slate-100">
-                    <img 
-                      src={post.coverImage || "/api/placeholder/150/150"} 
-                      alt={post.title} 
-                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
-                    />
-                  </div>
-                  <div className="flex flex-col">
-                    <h3 className="text-base font-bold text-slate-900 leading-snug group-hover:text-blue-600 transition-colors mb-1 line-clamp-2">
-                      {post.title}
-                    </h3>
-                    <p className="text-sm text-slate-500 line-clamp-2">
-                      {post.excerpt}
-                    </p>
-                  </div>
-                </Link>
+            {/* Mobile Latest Articles (List wrapped in white card) */}
+            <div className="md:hidden bg-white p-5 rounded-3xl border border-slate-200 shadow-sm">
+              {latestPosts.map((post, index) => (
+                <div key={post.id}>
+                  <Link href={`/blog/${post.slug}`} className="flex gap-4 items-center group py-4">
+                    <div className="w-24 h-24 shrink-0 rounded-2xl overflow-hidden bg-slate-100 border border-slate-100">
+                      <img 
+                        src={post.coverImage || "/api/placeholder/150/150"} 
+                        alt={post.title} 
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
+                      />
+                    </div>
+                    <div className="flex flex-col">
+                      <h3 className="text-base font-bold text-slate-900 leading-snug group-hover:text-blue-700 transition-colors mb-1 line-clamp-2">
+                        {post.title}
+                      </h3>
+                      <p className="text-sm text-slate-500 line-clamp-2">
+                        {post.excerpt}
+                      </p>
+                    </div>
+                  </Link>
+                  {index !== latestPosts.length - 1 && (
+                    <hr className="border-slate-100" />
+                  )}
+                </div>
               ))}
-              <Link 
-                href="/blog" 
-                className="flex items-center justify-center w-full py-4 bg-white border border-slate-200 text-blue-600 font-bold rounded-2xl transition-colors shadow-sm"
-              >
-                View All Blogs &rarr;
-              </Link>
+              <div className="pt-4 mt-2 border-t border-slate-100">
+                <Link 
+                  href="/blog" 
+                  className="flex items-center justify-center w-full py-4 bg-blue-50 border border-blue-100 text-blue-700 font-bold rounded-2xl transition-colors shadow-sm"
+                >
+                  View All Blogs &rarr;
+                </Link>
+              </div>
             </div>
 
             {/* Desktop Latest Articles (Grid) */}
