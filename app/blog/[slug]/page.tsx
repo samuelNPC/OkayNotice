@@ -5,6 +5,8 @@ import { collection, getDocs, query, where, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
 import { ChevronLeft, MoreVertical, Tag } from "lucide-react";
 import ShareButtons from "@/components/blog/ShareButtons";
 import FloatingLike from "@/components/blog/FloatingLike";
@@ -37,7 +39,7 @@ async function getRelatedPosts(category: string, currentPostId: string) {
     .slice(0, 3); // Return only 3 related posts
 }
 
-// 🚀 FULLY DYNAMIC SEO & OPEN GRAPH (Now using metaTitle & metaDescription)
+// 🚀 FULLY DYNAMIC SEO & OPEN GRAPH
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const post = await getPost(params.slug);
 
@@ -105,7 +107,7 @@ export default async function SinglePostPage({ params }: { params: { slug: strin
   return (
     <div className="bg-white min-h-screen pb-24">
 
-      {/* Mobile Top Navigation (Matching Screenshot) */}
+      {/* Mobile Top Navigation */}
       <div className="md:hidden flex items-center justify-between px-4 py-4 sticky top-0 bg-white/90 backdrop-blur-md z-40 border-b border-slate-100">
         <Link href="/" className="text-slate-800">
           <ChevronLeft size={28} />
@@ -165,9 +167,14 @@ export default async function SinglePostPage({ params }: { params: { slug: strin
           </div>
         )}
 
-        {/* Content - Restored ReactMarkdown */}
+        {/* Content - UPGRADED TO SUPPORT FULL MARKDOWN AND HTML */}
         <div className="prose prose-lg prose-blue prose-img:rounded-none max-w-none mb-10 text-slate-800 leading-relaxed">
-          <ReactMarkdown>{post.content}</ReactMarkdown>
+          <ReactMarkdown 
+            remarkPlugins={[remarkGfm]} 
+            rehypePlugins={[rehypeRaw]}
+          >
+            {post.content}
+          </ReactMarkdown>
         </div>
 
         {/* Tags Section */}
