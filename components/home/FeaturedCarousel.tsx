@@ -2,7 +2,7 @@
 
 import { useRef, useEffect } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Bookmark } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 
 interface Post {
   id: string;
@@ -41,7 +41,6 @@ export default function FeaturedCarousel({ posts }: { posts: Post[] }) {
 
   if (posts.length === 0) return null;
 
-  // We use a generic Cloudinary placeholder until your profile page is built
   const defaultAvatar = "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg";
 
   return (
@@ -67,17 +66,28 @@ export default function FeaturedCarousel({ posts }: { posts: Post[] }) {
           <Link 
             key={post.id} 
             href={`/blog/${post.slug}`}
-            className="shrink-0 w-[280px] md:w-[340px] snap-start bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-200 flex flex-col hover:border-blue-300 transition-colors"
+            className="group shrink-0 w-[280px] md:w-[340px] snap-start bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-200 flex flex-col transition-all duration-300 hover:border-blue-300 hover:shadow-md"
           >
-            <div className="h-48 w-full overflow-hidden">
+            {/* Image Container with Zoom-Out Effect */}
+            <div className="h-48 w-full overflow-hidden bg-slate-100">
               <img 
                 src={post.coverImage || "/api/placeholder/400/300"} 
                 alt={post.title} 
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transition-transform duration-500 scale-110 group-hover:scale-100"
               />
             </div>
+
             <div className="p-5 flex flex-col flex-grow">
-              <h3 className="font-bold text-slate-900 text-lg leading-snug line-clamp-2 mb-4">{post.title}</h3>
+              {/* Title: Blue by default, Black on hover */}
+              <h3 className="font-black text-blue-600 group-hover:text-slate-900 text-lg leading-snug line-clamp-2 mb-4 transition-colors duration-300">
+                {post.title}
+              </h3>
+
+              {/* Read Article Link */}
+              <div className="flex items-center text-xs font-bold text-blue-600 mb-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                READ ARTICLE <ArrowRight size={14} className="ml-1" />
+              </div>
+
               <div className="flex items-center justify-between mt-auto pt-4 border-t border-slate-100">
                 <div className="flex items-center space-x-3">
                   <div className="w-8 h-8 rounded-full bg-slate-200 overflow-hidden border border-slate-300">
@@ -87,9 +97,11 @@ export default function FeaturedCarousel({ posts }: { posts: Post[] }) {
                       className="w-full h-full object-cover" 
                     />
                   </div>
-                  <span className="text-sm text-slate-600 font-medium">{post.author || "OkayNotice"}</span>
+                  {/* Author Name: Forced to Okay Notice and Orange color */}
+                  <span className="text-sm text-orange-600 font-bold">
+                    {post.author || "Okay Notice"}
+                  </span>
                 </div>
-                <Bookmark size={18} className="text-slate-400 hover:text-blue-600 transition-colors" />
               </div>
             </div>
           </Link>
