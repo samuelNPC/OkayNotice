@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@vercel/analytics": "^1.2.2",
     "cloudinary": "^2.1.0",
     "date-fns": "^3.6.0",
     "easymde": "^2.18.0",
