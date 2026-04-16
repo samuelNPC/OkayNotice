@@ -26,7 +26,7 @@ const formatDate = (isoString: string | null) => {
 // Helper function to extract and count tags from all posts
 const getPopularTags = (posts: any[]) => {
   const tagCounts: Record<string, number> = {};
-  
+
   posts.forEach(post => {
     if (post.tags && Array.isArray(post.tags)) {
       post.tags.forEach((tag: string) => {
@@ -38,7 +38,6 @@ const getPopularTags = (posts: any[]) => {
     }
   });
 
-  // Convert to array, sort by count (highest first), and return top 10
   return Object.entries(tagCounts)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 10)
@@ -48,16 +47,12 @@ const getPopularTags = (posts: any[]) => {
 export default async function HomePage() {
   try {
     const postsRef = collection(db, "posts");
-    
-    // Fetch a larger pool of posts to get accurate tag counts
+
     const allRecentQuery = query(postsRef, orderBy("createdAt", "desc"), limit(50));
     const allRecentSnapshot = await getDocs(allRecentQuery);
     const allRecentPosts = allRecentSnapshot.docs.map(serializeDoc);
-    
-    // Get the latest 9 for the Latest Articles section
+
     const latestPosts = allRecentPosts.slice(0, 9);
-    
-    // Generate tag counts dynamically
     const popularTags = getPopularTags(allRecentPosts);
 
     const featuredQuery = query(postsRef, where("isFeatured", "==", true), limit(6));
@@ -74,10 +69,11 @@ export default async function HomePage() {
     const defaultAvatar = "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg";
 
     return (
-      <div className="bg-white min-h-screen text-slate-900 pb-20">
+      {/* REMOVED bg-white HERE to let the ambient layout show through */}
+      <div className="w-full min-h-screen text-slate-900 pb-20 relative z-10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-8 md:pt-10">
 
-                    {/* Mobile Hero - App Style Cards */}
+          {/* Mobile Hero - App Style Glass Cards */}
           <section className="mb-10 md:hidden flex flex-col items-center text-center">
             <h1 className="text-3xl font-black text-slate-900 mb-8 tracking-tight leading-tight">
               What are you <br />
@@ -86,7 +82,7 @@ export default async function HomePage() {
               </span>
             </h1>
             <div className="grid grid-cols-2 gap-4 w-full">
-              <Link href="/blog" className="group relative flex flex-col items-center justify-center bg-white border border-slate-200 rounded-2xl py-6 overflow-hidden transition-all active:scale-95 shadow-sm hover:shadow-md hover:border-orange-300">
+              <Link href="/blog" className="group relative flex flex-col items-center justify-center bg-white/80 backdrop-blur-md border border-white/60 rounded-2xl py-6 overflow-hidden transition-all active:scale-95 shadow-sm hover:shadow-md hover:border-orange-300">
                 <div className="absolute inset-0 bg-gradient-to-b from-orange-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                 <div className="relative z-10 flex flex-col items-center">
                   <div className="w-12 h-12 bg-orange-50 text-orange-500 rounded-full flex items-center justify-center mb-3 group-hover:-translate-y-1 transition-transform">
@@ -95,8 +91,8 @@ export default async function HomePage() {
                   <span className="font-bold text-slate-800">Blog</span>
                 </div>
               </Link>
-              
-              <Link href="/tools" className="group relative flex flex-col items-center justify-center bg-white border border-slate-200 rounded-2xl py-6 overflow-hidden transition-all active:scale-95 shadow-sm hover:shadow-md hover:border-pink-300">
+
+              <Link href="/tools" className="group relative flex flex-col items-center justify-center bg-white/80 backdrop-blur-md border border-white/60 rounded-2xl py-6 overflow-hidden transition-all active:scale-95 shadow-sm hover:shadow-md hover:border-pink-300">
                 <div className="absolute inset-0 bg-gradient-to-b from-pink-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                 <div className="relative z-10 flex flex-col items-center">
                   <div className="w-12 h-12 bg-pink-50 text-pink-500 rounded-full flex items-center justify-center mb-3 group-hover:-translate-y-1 transition-transform">
@@ -106,7 +102,7 @@ export default async function HomePage() {
                 </div>
               </Link>
 
-              <Link href="/deals" className="group relative flex flex-col items-center justify-center bg-white border border-slate-200 rounded-2xl py-6 overflow-hidden transition-all active:scale-95 shadow-sm hover:shadow-md hover:border-green-300">
+              <Link href="/deals" className="group relative flex flex-col items-center justify-center bg-white/80 backdrop-blur-md border border-white/60 rounded-2xl py-6 overflow-hidden transition-all active:scale-95 shadow-sm hover:shadow-md hover:border-green-300">
                 <div className="absolute inset-0 bg-gradient-to-b from-green-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                 <div className="relative z-10 flex flex-col items-center">
                   <div className="w-12 h-12 bg-green-50 text-green-500 rounded-full flex items-center justify-center mb-3 group-hover:-translate-y-1 transition-transform">
@@ -115,15 +111,14 @@ export default async function HomePage() {
                   <span className="font-bold text-slate-800">Deals</span>
                 </div>
               </Link>
-              
-              {/* Wrapper for MoreButton to match the card style */}
-              <div className="group relative flex flex-col items-center justify-center bg-slate-50 border border-slate-200 rounded-2xl py-6 overflow-hidden transition-all active:scale-95 shadow-sm hover:shadow-md hover:border-slate-300">
+
+              <div className="group relative flex flex-col items-center justify-center bg-slate-50/80 backdrop-blur-md border border-white/60 rounded-2xl py-6 overflow-hidden transition-all active:scale-95 shadow-sm hover:shadow-md hover:border-slate-300">
                  <MoreButton />
               </div>
             </div>
           </section>
 
-          {/* Desktop Hero - Bento Box Animated Layout */}
+          {/* Desktop Hero - Bento Box Animated Glass Layout */}
           <section className="hidden md:flex mb-16 flex-col items-center text-center w-full">
             <h1 className="text-4xl lg:text-6xl font-black text-slate-900 tracking-tight mb-12">
               What are you <br className="hidden lg:block" />
@@ -131,11 +126,11 @@ export default async function HomePage() {
                 Interested in Today?
               </span>
             </h1>
-            
+
             <div className="grid grid-cols-3 gap-6 w-full">
               {/* Blog Card */}
-              <Link href="/blog" className="group relative bg-white border border-slate-200 rounded-3xl p-8 hover:border-orange-300 hover:shadow-2xl hover:shadow-orange-100/50 transition-all duration-500 hover:-translate-y-2 overflow-hidden flex flex-col items-center text-center">
-                <div className="absolute inset-0 bg-gradient-to-br from-orange-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <Link href="/blog" className="group relative bg-white/80 backdrop-blur-xl border border-white/60 rounded-3xl p-8 hover:border-orange-300 hover:shadow-2xl hover:shadow-orange-100/50 transition-all duration-500 hover:-translate-y-2 overflow-hidden flex flex-col items-center text-center">
+                <div className="absolute inset-0 bg-gradient-to-br from-orange-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="relative z-10">
                   <div className="w-20 h-20 bg-orange-50 text-orange-500 rounded-2xl flex items-center justify-center mb-6 mx-auto group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500">
                     <FileText size={40} />
@@ -146,8 +141,8 @@ export default async function HomePage() {
               </Link>
 
               {/* Tools Card */}
-              <Link href="/tools" className="group relative bg-white border border-slate-200 rounded-3xl p-8 hover:border-pink-300 hover:shadow-2xl hover:shadow-pink-100/50 transition-all duration-500 hover:-translate-y-2 overflow-hidden flex flex-col items-center text-center mt-4 lg:mt-8">
-                <div className="absolute inset-0 bg-gradient-to-br from-pink-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <Link href="/tools" className="group relative bg-white/80 backdrop-blur-xl border border-white/60 rounded-3xl p-8 hover:border-pink-300 hover:shadow-2xl hover:shadow-pink-100/50 transition-all duration-500 hover:-translate-y-2 overflow-hidden flex flex-col items-center text-center mt-4 lg:mt-8">
+                <div className="absolute inset-0 bg-gradient-to-br from-pink-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="relative z-10">
                   <div className="w-20 h-20 bg-pink-50 text-pink-500 rounded-2xl flex items-center justify-center mb-6 mx-auto group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-500">
                     <Wrench size={40} />
@@ -158,8 +153,8 @@ export default async function HomePage() {
               </Link>
 
               {/* Deals Card */}
-              <Link href="/deals" className="group relative bg-white border border-slate-200 rounded-3xl p-8 hover:border-green-300 hover:shadow-2xl hover:shadow-green-100/50 transition-all duration-500 hover:-translate-y-2 overflow-hidden flex flex-col items-center text-center">
-                <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <Link href="/deals" className="group relative bg-white/80 backdrop-blur-xl border border-white/60 rounded-3xl p-8 hover:border-green-300 hover:shadow-2xl hover:shadow-green-100/50 transition-all duration-500 hover:-translate-y-2 overflow-hidden flex flex-col items-center text-center">
+                <div className="absolute inset-0 bg-gradient-to-br from-green-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="relative z-10">
                   <div className="w-20 h-20 bg-green-50 text-green-500 rounded-2xl flex items-center justify-center mb-6 mx-auto group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500">
                     <ShoppingBag size={40} />
@@ -171,8 +166,7 @@ export default async function HomePage() {
             </div>
           </section>
 
-          <hr className="border-slate-200 mb-10" />
-
+          <hr className="border-slate-200/50 my-10" />
 
           {/* Mobile Featured */}
           <section className="md:hidden">
@@ -187,11 +181,11 @@ export default async function HomePage() {
                 <Link 
                   key={post.id} 
                   href={`/blog/${post.slug}`}
-                  className="group bg-white border border-slate-200 flex flex-col hover:border-blue-300 transition-colors"
+                  className="group bg-white/80 backdrop-blur-md border border-white/60 rounded-2xl overflow-hidden flex flex-col hover:border-blue-300 hover:shadow-md transition-all duration-300"
                 >
                   <div className="h-48 w-full overflow-hidden relative">
                     {post.category && (
-                      <span className="absolute top-4 left-4 z-10 bg-blue-600 text-white text-xs font-bold px-3 py-1 uppercase tracking-wider">
+                      <span className="absolute top-4 left-4 z-10 bg-blue-600 text-white text-xs font-bold px-3 py-1 uppercase tracking-wider shadow-sm rounded-sm">
                         {post.category}
                       </span>
                     )}
@@ -202,10 +196,10 @@ export default async function HomePage() {
                     />
                   </div>
                   <div className="p-5 flex flex-col flex-grow">
-                    <h3 className="font-bold text-slate-900 text-lg leading-snug line-clamp-2 mb-4">{post.title}</h3>
+                    <h3 className="font-bold text-slate-900 text-lg leading-snug line-clamp-2 mb-4 group-hover:text-blue-700 transition-colors">{post.title}</h3>
                     <div className="flex items-center justify-between mt-auto pt-4 border-t border-slate-100">
                       <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-slate-200 overflow-hidden border border-slate-200">
+                        <div className="w-10 h-10 bg-slate-200 overflow-hidden border border-slate-200 rounded-full">
                           <img 
                             src={post.authorImage || defaultAvatar} 
                             alt="Author" 
@@ -227,7 +221,7 @@ export default async function HomePage() {
             </div>
           </section>
 
-          <hr className="border-slate-200 my-10" />
+          <hr className="border-slate-200/50 my-10" />
 
           {/* DYNAMIC TOPICS / TAGS CLOUD */}
           {popularTags.length > 0 && (
@@ -241,12 +235,12 @@ export default async function HomePage() {
                   <Link 
                     key={tag.name} 
                     href={`/blog?tag=${encodeURIComponent(tag.name)}`}
-                    className="flex items-center bg-slate-50 border border-slate-200 rounded-full px-4 py-2 hover:bg-blue-50 hover:border-blue-300 transition-colors group"
+                    className="flex items-center bg-white/70 backdrop-blur-md border border-slate-200/60 rounded-full px-4 py-2 hover:bg-blue-50 hover:border-blue-300 transition-colors group shadow-sm"
                   >
                     <span className="text-sm font-bold text-slate-700 group-hover:text-blue-700">
                       #{tag.name}
                     </span>
-                    <span className="ml-2 bg-slate-200 text-slate-600 text-[10px] font-black px-2 py-0.5 rounded-full group-hover:bg-blue-200 group-hover:text-blue-800">
+                    <span className="ml-2 bg-slate-200/80 text-slate-700 text-[10px] font-black px-2 py-0.5 rounded-full group-hover:bg-blue-200 group-hover:text-blue-800">
                       {tag.count}
                     </span>
                   </Link>
@@ -261,7 +255,7 @@ export default async function HomePage() {
               <div className="flex flex-col mb-8">
                 <div className="flex items-center justify-between mb-3">
                   <h2 className="text-2xl md:text-3xl font-black text-slate-900">Hand Picked Deals</h2>
-                  <Link href="/deals" className="hidden md:block text-sm bg-blue-50 text-blue-700 px-4 py-2 rounded-lg font-bold hover:bg-blue-100 transition-colors">
+                  <Link href="/deals" className="hidden md:block text-sm bg-blue-50/80 text-blue-700 px-4 py-2 rounded-lg font-bold hover:bg-blue-100 transition-colors backdrop-blur-md">
                     View All Deals &rarr;
                   </Link>
                 </div>
@@ -277,16 +271,16 @@ export default async function HomePage() {
                     href={deal.dealUrl || "#"} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="group bg-white border border-slate-200 overflow-hidden flex flex-col hover:border-blue-300 hover:shadow-md transition-all duration-300"
+                    className="group bg-white/80 backdrop-blur-md border border-white/60 rounded-xl overflow-hidden flex flex-col hover:border-blue-300 hover:shadow-md transition-all duration-300"
                   >
-                    <div className="aspect-square relative overflow-hidden bg-slate-50">
+                    <div className="aspect-square relative overflow-hidden bg-slate-50/50">
                       <img 
                         src={deal.image} 
                         alt={deal.title} 
                         className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
                       />
                     </div>
-                    <div className="p-4 flex flex-col flex-grow border-t border-slate-100">
+                    <div className="p-4 flex flex-col flex-grow border-t border-slate-100/50">
                       <h3 className="text-sm font-bold text-slate-900 line-clamp-2 mb-1 group-hover:text-blue-700 transition-colors">
                         {deal.title}
                       </h3>
@@ -299,35 +293,35 @@ export default async function HomePage() {
               </div>
 
               <div className="mt-6 md:hidden">
-                <Link href="/deals" className="flex items-center justify-center w-full py-3 bg-slate-100 text-slate-800 font-bold rounded-lg hover:bg-slate-200 transition-colors">
+                <Link href="/deals" className="flex items-center justify-center w-full py-3 bg-white/80 backdrop-blur-md border border-slate-200 text-slate-800 font-bold rounded-xl hover:bg-slate-50 transition-colors">
                   View All Deals &rarr;
                 </Link>
               </div>
             </section>
           )}
 
-          <hr className="border-slate-200 my-10" />
+          <hr className="border-slate-200/50 my-10" />
 
           {/* Latest Articles */}
           <section>
             <h2 className="text-xl md:text-2xl font-black text-slate-800 mb-6">Latest Articles</h2>
 
             {/* Mobile Latest Articles */}
-            <div className="md:hidden">
+            <div className="md:hidden space-y-2">
               {latestPosts.map((post, index) => (
-                <div key={post.id}>
-                  <Link href={`/blog/${post.slug}`} className="flex gap-4 items-center group py-4">
-                    <div className="w-24 h-24 shrink-0 overflow-hidden border border-slate-200">
+                <div key={post.id} className="bg-white/70 backdrop-blur-md border border-white/60 rounded-2xl overflow-hidden shadow-sm">
+                  <Link href={`/blog/${post.slug}`} className="flex gap-4 items-center group p-3">
+                    <div className="w-24 h-24 shrink-0 rounded-xl overflow-hidden border border-slate-100">
                       <img 
                         src={post.coverImage || "/api/placeholder/150/150"} 
                         alt={post.title} 
                         className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
                       />
                     </div>
-                    <div className="flex flex-col w-full">
-                      <div className="flex items-center gap-2 mb-1">
+                    <div className="flex flex-col w-full py-1">
+                      <div className="flex items-center gap-2 mb-1.5">
                         {post.category && (
-                          <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider bg-blue-50 px-2 py-0.5">
+                          <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider bg-blue-50/80 px-2 py-0.5 rounded-sm">
                             {post.category}
                           </span>
                         )}
@@ -335,28 +329,22 @@ export default async function HomePage() {
                           <span className="text-[10px] text-slate-400 font-medium">#{post.tags[0]}</span>
                         )}
                       </div>
-                      <h3 className="text-base font-bold text-blue-700 leading-snug group-hover:text-blue-900 transition-colors mb-1 line-clamp-2">
+                      <h3 className="text-sm font-bold text-slate-900 leading-snug group-hover:text-blue-700 transition-colors mb-1 line-clamp-2">
                         {post.title}
                       </h3>
-                      <p className="text-sm text-slate-500 line-clamp-2 mb-2">
-                        {post.excerpt}
-                      </p>
-                      <div className="mt-auto text-xs text-slate-400 font-medium flex items-center">
+                      <div className="mt-auto text-[11px] text-slate-400 font-medium flex items-center">
                         <span>{formatDate(post.createdAt)}</span>
                         {post.readTime && <span className="mx-1.5">•</span>}
                         {post.readTime && <span>{post.readTime}</span>}
                       </div>
                     </div>
                   </Link>
-                  {index !== latestPosts.length - 1 && (
-                    <hr className="border-slate-200" />
-                  )}
                 </div>
               ))}
-              <div className="pt-6 mt-2 border-t border-slate-200">
+              <div className="pt-4 mt-2">
                 <Link 
                   href="/blog" 
-                  className="flex items-center justify-center w-full py-4 bg-slate-900 text-white font-bold transition-colors"
+                  className="flex items-center justify-center w-full py-4 bg-slate-900 text-white font-bold rounded-2xl shadow-lg transition-transform active:scale-95"
                 >
                   View All Blogs &rarr;
                 </Link>
@@ -370,9 +358,9 @@ export default async function HomePage() {
                   <Link 
                     key={post.id} 
                     href={`/blog/${post.slug}`} 
-                    className="group flex flex-col bg-white border border-slate-200 hover:border-blue-300 transition-all"
+                    className="group flex flex-col bg-white/80 backdrop-blur-md border border-white/60 rounded-2xl overflow-hidden hover:border-blue-300 hover:shadow-lg transition-all duration-300"
                   >
-                    <div className="aspect-[4/3] w-full overflow-hidden border-b border-slate-100 relative">
+                    <div className="aspect-[4/3] w-full overflow-hidden border-b border-slate-100/50 relative">
                       <img 
                         src={post.coverImage || "/api/placeholder/150/150"} 
                         alt={post.title} 
@@ -382,7 +370,7 @@ export default async function HomePage() {
                     <div className="p-5 flex flex-col flex-grow">
                       <div className="flex items-center gap-2 mb-3">
                         {post.category && (
-                          <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wider bg-blue-50 px-2 py-1">
+                          <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wider bg-blue-50/80 px-2 py-1 rounded-sm">
                             {post.category}
                           </span>
                         )}
@@ -392,7 +380,7 @@ export default async function HomePage() {
                           </span>
                         )}
                       </div>
-                      <h3 className="text-lg font-bold text-blue-700 leading-snug group-hover:text-blue-900 transition-colors mb-2 line-clamp-2">
+                      <h3 className="text-lg font-bold text-slate-900 leading-snug group-hover:text-blue-700 transition-colors mb-2 line-clamp-2">
                         {post.title}
                       </h3>
                       <p className="text-sm text-slate-500 line-clamp-2">
@@ -409,7 +397,7 @@ export default async function HomePage() {
               </div>
               <Link 
                 href="/blog" 
-                className="flex items-center justify-center w-full py-4 bg-slate-900 text-white font-bold transition-colors hover:bg-slate-800"
+                className="flex items-center justify-center w-full py-4 bg-slate-900 text-white font-bold rounded-2xl shadow-md transition-colors hover:bg-slate-800"
               >
                 View All Blogs &rarr;
               </Link>
@@ -423,7 +411,7 @@ export default async function HomePage() {
     );
   } catch (error) {
     return (
-      <div className="min-h-[50vh] flex flex-col items-center justify-center text-slate-500 space-y-4">
+      <div className="min-h-[50vh] flex flex-col items-center justify-center text-slate-500 space-y-4 relative z-10">
         <AlertCircle size={40} className="text-red-500" />
         <p className="text-lg font-medium">Unable to load homepage content.</p>
         <p className="text-sm">Please refresh the page or check your database connection.</p>
