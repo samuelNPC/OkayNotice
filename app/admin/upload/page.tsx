@@ -88,7 +88,7 @@ function EditorForm() {
 
   // ================= CLOUDINARY UPLOAD =================
   const uploadToCloudinary = async (file: File) => {
-    const sigRes = await fetch("/api/cloudinary/blog-sign", { method: "POST" });
+    const sigRes = await fetch("app/api/upload-image/route", { method: "POST" });
     if (!sigRes.ok) throw new Error("Signature API failed");
     
     const sigData = await sigRes.json();
