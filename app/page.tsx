@@ -4,7 +4,7 @@ import { db } from "@/lib/firebase";
 import NewsletterForm from "@/components/home/NewsletterForm";
 import FeaturedCarousel from "@/components/home/FeaturedCarousel";
 import MoreButton from "@/components/home/MoreButton";
-import { FileText, Wrench, ShoppingBag, AlertCircle, Bookmark } from "lucide-react";
+import { FileText, Wrench, ShoppingBag, AlertCircle, Bookmark, Tag } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -17,19 +17,48 @@ const serializeDoc = (doc: any) => {
   };
 };
 
-// Helper to format the upload date beautifully (e.g. "Apr 16, 2026")
 const formatDate = (isoString: string | null) => {
   if (!isoString) return "";
   const d = new Date(isoString);
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 };
 
+// Helper function to extract and count tags from all posts
+const getPopularTags = (posts: any[]) => {
+  const tagCounts: Record<string, number> = {};
+  
+  posts.forEach(post => {
+    if (post.tags && Array.isArray(post.tags)) {
+      post.tags.forEach((tag: string) => {
+        const cleanTag = tag.trim();
+        if (cleanTag) {
+          tagCounts[cleanTag] = (tagCounts[cleanTag] || 0) + 1;
+        }
+      });
+    }
+  });
+
+  // Convert to array, sort by count (highest first), and return top 10
+  return Object.entries(tagCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 10)
+    .map(([name, count]) => ({ name, count }));
+};
+
 export default async function HomePage() {
   try {
     const postsRef = collection(db, "posts");
-    const latestQuery = query(postsRef, orderBy("createdAt", "desc"), limit(9));
-    const latestSnapshot = await getDocs(latestQuery);
-    const latestPosts = latestSnapshot.docs.map(serializeDoc);
+    
+    // Fetch a larger pool of posts to get accurate tag counts
+    const allRecentQuery = query(postsRef, orderBy("createdAt", "desc"), limit(50));
+    const allRecentSnapshot = await getDocs(allRecentQuery);
+    const allRecentPosts = allRecentSnapshot.docs.map(serializeDoc);
+    
+    // Get the latest 9 for the Latest Articles section
+    const latestPosts = allRecentPosts.slice(0, 9);
+    
+    // Generate tag counts dynamically
+    const popularTags = getPopularTags(allRecentPosts);
 
     const featuredQuery = query(postsRef, where("isFeatured", "==", true), limit(6));
     const featuredSnapshot = await getDocs(featuredQuery);
@@ -48,52 +77,102 @@ export default async function HomePage() {
       <div className="bg-white min-h-screen text-slate-900 pb-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-8 md:pt-10">
 
-          {/* Mobile Hero */}
-          <section className="mb-8 md:hidden flex flex-col items-center text-center">
+                    {/* Mobile Hero - App Style Cards */}
+          <section className="mb-10 md:hidden flex flex-col items-center text-center">
             <h1 className="text-3xl font-black text-slate-900 mb-8 tracking-tight leading-tight">
               What are you <br />
-              <span className="text-blue-700">Interested in Today?</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-400">
+                Interested in Today?
+              </span>
             </h1>
             <div className="grid grid-cols-2 gap-4 w-full">
-              <Link href="/blog" className="flex items-center justify-center space-x-3 bg-white border border-slate-200 py-4 hover:border-blue-300 transition-colors">
-                <FileText size={20} className="text-orange-500" />
-                <span className="font-bold text-slate-800">Blog</span>
+              <Link href="/blog" className="group relative flex flex-col items-center justify-center bg-white border border-slate-200 rounded-2xl py-6 overflow-hidden transition-all active:scale-95 shadow-sm hover:shadow-md hover:border-orange-300">
+                <div className="absolute inset-0 bg-gradient-to-b from-orange-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="relative z-10 flex flex-col items-center">
+                  <div className="w-12 h-12 bg-orange-50 text-orange-500 rounded-full flex items-center justify-center mb-3 group-hover:-translate-y-1 transition-transform">
+                    <FileText size={24} />
+                  </div>
+                  <span className="font-bold text-slate-800">Blog</span>
+                </div>
               </Link>
-              <Link href="/tools" className="flex items-center justify-center space-x-3 bg-white border border-slate-200 py-4 hover:border-blue-300 transition-colors">
-                <Wrench size={20} className="text-pink-500" />
-                <span className="font-bold text-slate-800">Tools</span>
+              
+              <Link href="/tools" className="group relative flex flex-col items-center justify-center bg-white border border-slate-200 rounded-2xl py-6 overflow-hidden transition-all active:scale-95 shadow-sm hover:shadow-md hover:border-pink-300">
+                <div className="absolute inset-0 bg-gradient-to-b from-pink-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="relative z-10 flex flex-col items-center">
+                  <div className="w-12 h-12 bg-pink-50 text-pink-500 rounded-full flex items-center justify-center mb-3 group-hover:-translate-y-1 transition-transform">
+                    <Wrench size={24} />
+                  </div>
+                  <span className="font-bold text-slate-800">Tools</span>
+                </div>
               </Link>
-              <Link href="/deals" className="flex items-center justify-center space-x-3 bg-white border border-slate-200 py-4 hover:border-blue-300 transition-colors">
-                <ShoppingBag size={20} className="text-green-500" />
-                <span className="font-bold text-slate-800">Deals</span>
+
+              <Link href="/deals" className="group relative flex flex-col items-center justify-center bg-white border border-slate-200 rounded-2xl py-6 overflow-hidden transition-all active:scale-95 shadow-sm hover:shadow-md hover:border-green-300">
+                <div className="absolute inset-0 bg-gradient-to-b from-green-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="relative z-10 flex flex-col items-center">
+                  <div className="w-12 h-12 bg-green-50 text-green-500 rounded-full flex items-center justify-center mb-3 group-hover:-translate-y-1 transition-transform">
+                    <ShoppingBag size={24} />
+                  </div>
+                  <span className="font-bold text-slate-800">Deals</span>
+                </div>
               </Link>
-              <MoreButton />
+              
+              {/* Wrapper for MoreButton to match the card style */}
+              <div className="group relative flex flex-col items-center justify-center bg-slate-50 border border-slate-200 rounded-2xl py-6 overflow-hidden transition-all active:scale-95 shadow-sm hover:shadow-md hover:border-slate-300">
+                 <MoreButton />
+              </div>
             </div>
           </section>
 
-          {/* Desktop Hero */}
-          <section className="hidden md:flex mb-10 text-left flex-col lg:flex-row lg:items-center justify-between gap-6">
-            <h1 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
-              What are you <br />
-              <span className="text-blue-700">Interested in Today?</span>
+          {/* Desktop Hero - Bento Box Animated Layout */}
+          <section className="hidden md:flex mb-16 flex-col items-center text-center w-full">
+            <h1 className="text-4xl lg:text-6xl font-black text-slate-900 tracking-tight mb-12">
+              What are you <br className="hidden lg:block" />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-400">
+                Interested in Today?
+              </span>
             </h1>
-            <div className="grid grid-cols-3 gap-4 w-full lg:w-auto shrink-0">
-              <Link href="/blog" className="flex items-center justify-center px-8 space-x-2 bg-white border border-slate-200 py-4 hover:border-blue-300 transition-all">
-                <FileText size={20} className="text-orange-500" />
-                <span className="font-bold text-slate-800">Blog</span>
+            
+            <div className="grid grid-cols-3 gap-6 w-full">
+              {/* Blog Card */}
+              <Link href="/blog" className="group relative bg-white border border-slate-200 rounded-3xl p-8 hover:border-orange-300 hover:shadow-2xl hover:shadow-orange-100/50 transition-all duration-500 hover:-translate-y-2 overflow-hidden flex flex-col items-center text-center">
+                <div className="absolute inset-0 bg-gradient-to-br from-orange-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="relative z-10">
+                  <div className="w-20 h-20 bg-orange-50 text-orange-500 rounded-2xl flex items-center justify-center mb-6 mx-auto group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500">
+                    <FileText size={40} />
+                  </div>
+                  <h3 className="font-black text-2xl text-slate-900 mb-2">Tech Blog</h3>
+                  <p className="text-slate-500 font-medium">Guides, reviews & local fintech news.</p>
+                </div>
               </Link>
-              <Link href="/tools" className="flex items-center justify-center px-8 space-x-2 bg-white border border-slate-200 py-4 hover:border-blue-300 transition-all">
-                <Wrench size={20} className="text-pink-500" />
-                <span className="font-bold text-slate-800">Tools</span>
+
+              {/* Tools Card */}
+              <Link href="/tools" className="group relative bg-white border border-slate-200 rounded-3xl p-8 hover:border-pink-300 hover:shadow-2xl hover:shadow-pink-100/50 transition-all duration-500 hover:-translate-y-2 overflow-hidden flex flex-col items-center text-center mt-4 lg:mt-8">
+                <div className="absolute inset-0 bg-gradient-to-br from-pink-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="relative z-10">
+                  <div className="w-20 h-20 bg-pink-50 text-pink-500 rounded-2xl flex items-center justify-center mb-6 mx-auto group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-500">
+                    <Wrench size={40} />
+                  </div>
+                  <h3 className="font-black text-2xl text-slate-900 mb-2">Calculators</h3>
+                  <p className="text-slate-500 font-medium">MoMo fees & quick loan mathematics.</p>
+                </div>
               </Link>
-              <Link href="/deals" className="flex items-center justify-center px-8 space-x-2 bg-white border border-slate-200 py-4 hover:border-blue-300 transition-all">
-                <ShoppingBag size={20} className="text-green-500" />
-                <span className="font-bold text-slate-800">Deals</span>
+
+              {/* Deals Card */}
+              <Link href="/deals" className="group relative bg-white border border-slate-200 rounded-3xl p-8 hover:border-green-300 hover:shadow-2xl hover:shadow-green-100/50 transition-all duration-500 hover:-translate-y-2 overflow-hidden flex flex-col items-center text-center">
+                <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="relative z-10">
+                  <div className="w-20 h-20 bg-green-50 text-green-500 rounded-2xl flex items-center justify-center mb-6 mx-auto group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500">
+                    <ShoppingBag size={40} />
+                  </div>
+                  <h3 className="font-black text-2xl text-slate-900 mb-2">Gadget Deals</h3>
+                  <p className="text-slate-500 font-medium">Verified discounts via Kabale Online.</p>
+                </div>
               </Link>
             </div>
           </section>
 
-          <hr className="border-slate-200 my-10" />
+          <hr className="border-slate-200 mb-10" />
+
 
           {/* Mobile Featured */}
           <section className="md:hidden">
@@ -150,7 +229,33 @@ export default async function HomePage() {
 
           <hr className="border-slate-200 my-10" />
 
-                              {/* Hand Picked Deals */}
+          {/* DYNAMIC TOPICS / TAGS CLOUD */}
+          {popularTags.length > 0 && (
+            <section className="mb-10">
+              <div className="flex items-center mb-6">
+                <Tag size={24} className="text-blue-600 mr-2" />
+                <h2 className="text-2xl font-black text-slate-800">Popular Topics</h2>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                {popularTags.map((tag) => (
+                  <Link 
+                    key={tag.name} 
+                    href={`/blog?tag=${encodeURIComponent(tag.name)}`}
+                    className="flex items-center bg-slate-50 border border-slate-200 rounded-full px-4 py-2 hover:bg-blue-50 hover:border-blue-300 transition-colors group"
+                  >
+                    <span className="text-sm font-bold text-slate-700 group-hover:text-blue-700">
+                      #{tag.name}
+                    </span>
+                    <span className="ml-2 bg-slate-200 text-slate-600 text-[10px] font-black px-2 py-0.5 rounded-full group-hover:bg-blue-200 group-hover:text-blue-800">
+                      {tag.count}
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Hand Picked Deals */}
           {deals.length > 0 && (
             <section>
               <div className="flex flex-col mb-8">
@@ -160,7 +265,6 @@ export default async function HomePage() {
                     View All Deals &rarr;
                   </Link>
                 </div>
-                {/* Section Description */}
                 <p className="text-slate-600 max-w-3xl leading-relaxed">
                   Looking for an upgrade? We scour the market to bring you the best discounts on smartphones, laptops, and tech accessories. All items are verified and seamlessly fulfilled through our trusted e-commerce platform, <strong>Kabale Online</strong>.
                 </p>
@@ -170,7 +274,7 @@ export default async function HomePage() {
                 {deals.map(deal => (
                   <a 
                     key={deal.id} 
-                    href={deal.dealUrl || "#"} // Fixed database field mapping
+                    href={deal.dealUrl || "#"} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="group bg-white border border-slate-200 overflow-hidden flex flex-col hover:border-blue-300 hover:shadow-md transition-all duration-300"
@@ -194,7 +298,6 @@ export default async function HomePage() {
                 ))}
               </div>
 
-              {/* Mobile View All Button */}
               <div className="mt-6 md:hidden">
                 <Link href="/deals" className="flex items-center justify-center w-full py-3 bg-slate-100 text-slate-800 font-bold rounded-lg hover:bg-slate-200 transition-colors">
                   View All Deals &rarr;
@@ -204,8 +307,6 @@ export default async function HomePage() {
           )}
 
           <hr className="border-slate-200 my-10" />
-
-
 
           {/* Latest Articles */}
           <section>
@@ -315,7 +416,6 @@ export default async function HomePage() {
             </div>
           </section>
 
-          {/* NEWSLETTER */}
           <NewsletterForm />
 
         </div>
