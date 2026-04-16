@@ -1,7 +1,6 @@
 import { Metadata } from "next";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import DealCard from "@/components/cards/DealCard";
 import { ShoppingBag, ArrowRight, Tag } from "lucide-react";
 
 export const revalidate = 60;
@@ -11,7 +10,6 @@ export const metadata: Metadata = {
   description: "Discover the best handpicked gadget deals, smartphones, and laptops directly from Kabale Online.",
 };
 
-// Safe serialization to prevent Server Component crashes with Firebase Timestamps
 const serializeDoc = (doc: any) => {
   const data = doc.data();
   return {
@@ -37,13 +35,14 @@ export default async function DealsPage() {
 
   return (
     <div className="bg-white min-h-screen text-slate-900 pb-20">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-10">
-        
-        {/* UPGRADED HERO SECTION */}
-        <section className="border-b border-slate-200 pb-10 mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+      {/* Notice we removed the side padding here so the mobile grid can go true edge-to-edge */}
+      <div className="max-w-6xl mx-auto pt-10">
+
+        {/* HERO SECTION - Padding applied here instead of parent, removed borders */}
+        <section className="pb-8 mb-4 flex flex-col md:flex-row md:items-end justify-between gap-6 px-4 sm:px-6">
           <div className="max-w-3xl">
             <div className="flex items-center space-x-2 mb-4">
-              <span className="bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide flex items-center">
+              <span className="bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 uppercase tracking-wide flex items-center">
                 <Tag size={14} className="mr-1" /> Verified Deals
               </span>
             </div>
@@ -54,12 +53,12 @@ export default async function DealsPage() {
               Handpicked gadgets, laptops, and mobile accessories at the best prices. All deals are verified and linked directly to Kabale Online.
             </p>
           </div>
-          
+
           <a 
             href="#" 
             target="_blank" 
             rel="noopener noreferrer" 
-            className="flex items-center justify-center bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 px-8 rounded-2xl transition-all shadow-sm shrink-0"
+            className="flex items-center justify-center bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 px-8 transition-colors shrink-0"
           >
             Visit Kabale Online <ArrowRight size={20} className="ml-2" />
           </a>
@@ -67,7 +66,7 @@ export default async function DealsPage() {
 
         {/* MAIN DEALS GRID */}
         {deals.length === 0 ? (
-          <div className="text-center py-24 bg-slate-50 rounded-3xl border border-slate-200 flex flex-col items-center">
+          <div className="text-center py-24 bg-slate-50 flex flex-col items-center mx-4 sm:mx-6">
             <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-4">
               <ShoppingBag size={32} />
             </div>
@@ -77,9 +76,42 @@ export default async function DealsPage() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+          /* Mobile: 1px gap on gray background creates a classic seamless e-commerce grid. Desktop: standard spacing */
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-[1px] sm:gap-6 bg-slate-200 sm:bg-transparent border-t border-b border-slate-200 sm:border-none sm:px-6">
             {deals.map(deal => (
-              <DealCard key={deal.id} deal={deal} />
+              <a 
+                key={deal.id} 
+                href={deal.url || "#"} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="group bg-white flex flex-col hover:shadow-lg transition-shadow duration-300"
+              >
+                {/* Edge-to-edge image, perfectly square */}
+                <div className="aspect-square relative w-full overflow-hidden bg-white">
+                  <img 
+                    src={deal.image} 
+                    alt={deal.title} 
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                  />
+                </div>
+                
+                {/* Content area with clamped lines */}
+                <div className="p-3 sm:p-4 flex flex-col flex-grow">
+                  <h3 className="text-sm md:text-base font-bold text-slate-900 line-clamp-2 mb-1 leading-snug">
+                    {deal.title}
+                  </h3>
+                  
+                  {deal.description && (
+                    <p className="text-xs text-slate-500 line-clamp-2 mb-3">
+                      {deal.description}
+                    </p>
+                  )}
+                  
+                  <p className="text-blue-700 font-black text-base md:text-lg mt-auto">
+                    UGX {deal.price}
+                  </p>
+                </div>
+              </a>
             ))}
           </div>
         )}
