@@ -151,9 +151,11 @@ export default async function SinglePostPage({ params }: { params: { slug: strin
         )}
 
         {/* Content */}
-        <div className="prose prose-lg prose-slate prose-img:rounded-2xl max-w-none mb-16 text-slate-800 leading-relaxed">
-          <ReactMarkdown>{post.content}</ReactMarkdown>
-        </div>
+        <div 
+  className="prose prose-lg prose-blue max-w-none mb-16 text-slate-800 leading-relaxed"
+  dangerouslySetInnerHTML={{ __html: post.content }}
+/>
+
 
       </article>
 
