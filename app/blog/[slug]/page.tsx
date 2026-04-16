@@ -30,7 +30,7 @@ async function getRelatedPosts(category: string, currentPostId: string) {
   const postsRef = collection(db, "posts");
   const q = query(postsRef, where("category", "==", category), limit(4));
   const snapshot = await getDocs(q);
-  
+
   return snapshot.docs
     .map(doc => ({ id: doc.id, ...doc.data() } as any))
     .filter(post => post.id !== currentPostId)
@@ -40,7 +40,7 @@ async function getRelatedPosts(category: string, currentPostId: string) {
 // 🚀 FULLY DYNAMIC SEO & OPEN GRAPH
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const post = await getPost(params.slug);
-  
+
   if (!post) {
     return {
       title: "Post Not Found | OkayNotice",
@@ -93,14 +93,14 @@ export default async function SinglePostPage({ params }: { params: { slug: strin
   }
 
   const relatedPosts = await getRelatedPosts(post.category, post.id);
-  
+
   // Format Date safely
   const timeAgo = post.createdAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   const defaultAvatar = "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg";
 
   return (
     <div className="bg-white min-h-screen pb-24">
-      
+
       {/* Mobile Top Navigation (Matching Screenshot) */}
       <div className="md:hidden flex items-center justify-between px-4 py-4 sticky top-0 bg-white/90 backdrop-blur-md z-40">
         <Link href="/" className="text-slate-800">
@@ -112,7 +112,7 @@ export default async function SinglePostPage({ params }: { params: { slug: strin
       </div>
 
       <article className="max-w-2xl mx-auto px-4 sm:px-6 pt-4 md:pt-12">
-        
+
         {/* Title */}
         <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 mb-6 leading-tight md:leading-tight">
           {post.title}
@@ -133,7 +133,7 @@ export default async function SinglePostPage({ params }: { params: { slug: strin
               <p className="text-slate-500 text-xs">{timeAgo}</p>
             </div>
           </div>
-          
+
           <ShareButtons title={post.title} />
         </div>
 
@@ -150,12 +150,10 @@ export default async function SinglePostPage({ params }: { params: { slug: strin
           </div>
         )}
 
-        {/* Content */}
-        <div 
-  className="prose prose-lg prose-blue max-w-none mb-16 text-slate-800 leading-relaxed"
-  dangerouslySetInnerHTML={{ __html: post.content }}
-/>
-
+        {/* Content - Restored ReactMarkdown */}
+        <div className="prose prose-lg prose-blue prose-img:rounded-none max-w-none mb-16 text-slate-800 leading-relaxed">
+          <ReactMarkdown>{post.content}</ReactMarkdown>
+        </div>
 
       </article>
 
@@ -192,7 +190,7 @@ export default async function SinglePostPage({ params }: { params: { slug: strin
 
       {/* Floating Interaction */}
       <FloatingLike postId={post.id} initialLikes={post.likes || 0} />
-      
+
     </div>
   );
 }
