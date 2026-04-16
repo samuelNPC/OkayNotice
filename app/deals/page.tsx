@@ -35,10 +35,9 @@ export default async function DealsPage() {
 
   return (
     <div className="bg-white min-h-screen text-slate-900 pb-20">
-      {/* Notice we removed the side padding here so the mobile grid can go true edge-to-edge */}
       <div className="max-w-6xl mx-auto pt-10">
 
-        {/* HERO SECTION - Padding applied here instead of parent, removed borders */}
+        {/* HERO SECTION */}
         <section className="pb-8 mb-4 flex flex-col md:flex-row md:items-end justify-between gap-6 px-4 sm:px-6">
           <div className="max-w-3xl">
             <div className="flex items-center space-x-2 mb-4">
@@ -55,7 +54,7 @@ export default async function DealsPage() {
           </div>
 
           <a 
-            href="https://kabale.online" 
+            href="https://www.kabaleonline.com" 
             target="_blank" 
             rel="noopener noreferrer" 
             className="flex items-center justify-center bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 px-8 transition-colors shrink-0 rounded-lg md:rounded-none"
@@ -76,17 +75,16 @@ export default async function DealsPage() {
             </p>
           </div>
         ) : (
-          /* Mobile: 1px gap on gray background creates a classic seamless e-commerce grid. Desktop: standard spacing */
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-[1px] sm:gap-6 bg-slate-200 sm:bg-transparent border-t border-b border-slate-200 sm:border-none sm:px-6">
             {deals.map(deal => (
               <a 
                 key={deal.id} 
-                href={deal.url || "#"} 
+                href={deal.dealUrl || "#"} 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="group bg-white flex flex-col sm:border sm:border-slate-200 sm:hover:border-blue-300 hover:shadow-md transition-all duration-300"
               >
-                {/* Edge-to-edge image, perfectly square */}
+                {/* Product Image */}
                 <div className="aspect-square relative w-full overflow-hidden bg-slate-50">
                   <img 
                     src={deal.image} 
@@ -95,7 +93,7 @@ export default async function DealsPage() {
                   />
                 </div>
 
-                {/* Content area */}
+                {/* Product Content */}
                 <div className="p-3 sm:p-4 flex flex-col flex-grow sm:border-t sm:border-slate-100">
                   <h3 className="text-sm md:text-base font-bold text-slate-900 line-clamp-2 mb-1 leading-snug group-hover:text-blue-700 transition-colors">
                     {deal.title}
@@ -108,14 +106,13 @@ export default async function DealsPage() {
                   )}
 
                   <p className="text-blue-700 font-black text-base md:text-lg mt-auto pt-2">
-                    UGX {deal.price}
+                    UGX {Number(deal.price).toLocaleString()}
                   </p>
                 </div>
               </a>
             ))}
           </div>
         )}
-
       </div>
     </div>
   );
