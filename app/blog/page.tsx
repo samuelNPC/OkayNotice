@@ -1,57 +1,148 @@
 import { Metadata } from "next";
-import { collection, getDocs, query, orderBy } from "firebase/firestore";
+import Link from "next/link";
+import { collection, getDocs, query, orderBy, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import PostCard from "@/components/cards/PostCard";
+import FeaturedCarousel from "@/components/home/FeaturedCarousel";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 
-// SEO Metadata
 export const metadata: Metadata = {
   title: "Latest Tech & Finance News",
   description: "Read the latest updates on Uganda tech, finance, mobile money, and gadget reviews on OkayNotice.",
 };
 
-// Next.js config to ensure the page revalidates and fetches fresh data
-export const revalidate = 60; // Revalidate every 60 seconds
+export const revalidate = 60;
 
-async function getPosts() {
+const POSTS_PER_PAGE = 9;
+
+// Safe serialization to prevent Server Component crashes with Firebase Timestamps
+const serializeDoc = (doc: any) => {
+  const data = doc.data();
+  return {
+    id: doc.id,
+    ...data,
+    createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : null,
+  };
+};
+
+async function getBlogData() {
   try {
     const postsRef = collection(db, "posts");
-    // Fetch posts ordered by creation date (newest first)
-    const q = query(postsRef, orderBy("createdAt", "desc"));
-    const snapshot = await getDocs(q);
     
-    return snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    })) as any[];
+    // 1. Fetch All Posts (Ordered Newest to Oldest)
+    const allQuery = query(postsRef, orderBy("createdAt", "desc"));
+    const allSnapshot = await getDocs(allQuery);
+    const allPosts = allSnapshot.docs.map(serializeDoc);
+
+    // 2. Fetch Featured Posts (for the Carousel)
+    const featuredQuery = query(postsRef, where("isFeatured", "==", true));
+    const featuredSnapshot = await getDocs(featuredQuery);
+    const featuredPosts = featuredSnapshot.docs.map(serializeDoc);
+
+    return { allPosts, featuredPosts };
   } catch (error) {
     console.error("Error fetching posts:", error);
-    return [];
+    return { allPosts: [], featuredPosts: [] };
   }
 }
 
-export default async function BlogPage() {
-  const posts = await getPosts();
+export default async function BlogPage({
+  searchParams,
+}: {
+  searchParams: { page?: string };
+}) {
+  const currentPage = Number(searchParams?.page) || 1;
+  const { allPosts, featuredPosts } = await getBlogData();
+
+  // Calculate Pagination
+  const totalPages = Math.ceil(allPosts.length / POSTS_PER_PAGE);
+  const startIndex = (currentPage - 1) * POSTS_PER_PAGE;
+  const currentPosts = allPosts.slice(startIndex, startIndex + POSTS_PER_PAGE);
 
   return (
-    <div className="max-w-7xl mx-auto py-10">
-      <div className="text-center space-y-4 mb-12">
-        <h1 className="text-4xl font-bold text-slate-900">The OkayNotice Blog</h1>
-        <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-          Insights on finance, technology trends, and the best gadget deals in Uganda.
-        </p>
-      </div>
+    <div className="bg-white min-h-screen text-slate-900 pb-20">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-10">
+        
+        {/* UPGRADED HERO SECTION */}
+        <section className="border-b border-slate-200 pb-10 mb-10">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight mb-4">
+            The OkayNotice <span className="text-blue-700">Blog</span>
+          </h1>
+          <p className="text-lg md:text-xl text-slate-600 max-w-3xl">
+            Deep dives, practical guides, and the latest updates on finance, technology trends, and gadget deals in Uganda.
+          </p>
+        </section>
 
-      {posts.length === 0 ? (
-        <div className="text-center py-20 bg-white rounded-2xl border border-slate-200 text-slate-500">
-          No posts found. Start writing from your admin dashboard!
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {posts.map(post => (
-            <PostCard key={post.id} post={post} />
-          ))}
-        </div>
-      )}
+        {currentPosts.length === 0 ? (
+          <div className="text-center py-20 text-slate-500">
+            No posts found. Start writing from your admin dashboard!
+          </div>
+        ) : (
+          <div className="space-y-12">
+            
+            {/* FIRST BATCH OF POSTS (Up to 3) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+              {currentPosts.slice(0, 3).map(post => (
+                <PostCard key={post.id} post={post} />
+              ))}
+            </div>
+
+            {/* INJECT FEATURED CAROUSEL (Only on Page 1) */}
+            {currentPage === 1 && featuredPosts.length > 0 && (
+              <div className="py-8 my-8 border-y border-slate-100 bg-slate-50 -mx-4 px-4 sm:mx-0 sm:px-8 sm:rounded-3xl">
+                <div className="flex items-center justify-between mb-2">
+                  <h2 className="text-sm font-bold text-blue-600 uppercase tracking-widest">Editor's Picks</h2>
+                </div>
+                <FeaturedCarousel posts={featuredPosts} />
+              </div>
+            )}
+
+            {/* SECOND BATCH OF POSTS (The remaining 6 for this page) */}
+            {currentPosts.length > 3 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                {currentPosts.slice(3).map(post => (
+                  <PostCard key={post.id} post={post} />
+                ))}
+              </div>
+            )}
+
+          </div>
+        )}
+
+        {/* PAGINATION CONTROLS */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between border-t border-slate-200 mt-16 pt-8">
+            {currentPage > 1 ? (
+              <Link 
+                href={`/blog?page=${currentPage - 1}`}
+                className="flex items-center text-slate-600 hover:text-blue-700 font-bold transition-colors"
+              >
+                <ArrowLeft size={20} className="mr-2" />
+                Previous Page
+              </Link>
+            ) : (
+              <div /> /* Empty div to push 'Next' button to the right */
+            )}
+
+            <span className="text-sm font-medium text-slate-500">
+              Page {currentPage} of {totalPages}
+            </span>
+
+            {currentPage < totalPages ? (
+              <Link 
+                href={`/blog?page=${currentPage + 1}`}
+                className="flex items-center text-slate-600 hover:text-blue-700 font-bold transition-colors"
+              >
+                Next Page
+                <ArrowRight size={20} className="ml-2" />
+              </Link>
+            ) : (
+              <div />
+            )}
+          </div>
+        )}
+
+      </div>
     </div>
   );
 }
