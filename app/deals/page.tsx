@@ -49,16 +49,16 @@ export default async function DealsPage() {
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight mb-4">
               Top Tech <span className="text-blue-700">Deals</span>
             </h1>
-            <p className="text-lg md:text-xl text-slate-600">
-              Handpicked gadgets, laptops, and mobile accessories at the best prices. All deals are verified and linked directly to Kabale Online.
+            <p className="text-lg md:text-xl text-slate-600 leading-relaxed">
+              Looking for an upgrade? We scour the market to bring you the best discounts on smartphones, laptops, and tech accessories. All items are verified and seamlessly fulfilled through our trusted e-commerce platform, <strong>Kabale Online</strong>.
             </p>
           </div>
 
           <a 
-            href="#" 
+            href="https://kabale.online" 
             target="_blank" 
             rel="noopener noreferrer" 
-            className="flex items-center justify-center bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 px-8 transition-colors shrink-0"
+            className="flex items-center justify-center bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 px-8 transition-colors shrink-0 rounded-lg md:rounded-none"
           >
             Visit Kabale Online <ArrowRight size={20} className="ml-2" />
           </a>
@@ -66,7 +66,7 @@ export default async function DealsPage() {
 
         {/* MAIN DEALS GRID */}
         {deals.length === 0 ? (
-          <div className="text-center py-24 bg-slate-50 flex flex-col items-center mx-4 sm:mx-6">
+          <div className="text-center py-24 bg-slate-50 flex flex-col items-center mx-4 sm:mx-6 rounded-2xl">
             <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-4">
               <ShoppingBag size={32} />
             </div>
@@ -84,30 +84,30 @@ export default async function DealsPage() {
                 href={deal.url || "#"} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="group bg-white flex flex-col hover:shadow-lg transition-shadow duration-300"
+                className="group bg-white flex flex-col sm:border sm:border-slate-200 sm:hover:border-blue-300 hover:shadow-md transition-all duration-300"
               >
                 {/* Edge-to-edge image, perfectly square */}
-                <div className="aspect-square relative w-full overflow-hidden bg-white">
+                <div className="aspect-square relative w-full overflow-hidden bg-slate-50">
                   <img 
                     src={deal.image} 
                     alt={deal.title} 
                     className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
                   />
                 </div>
-                
-                {/* Content area with clamped lines */}
-                <div className="p-3 sm:p-4 flex flex-col flex-grow">
-                  <h3 className="text-sm md:text-base font-bold text-slate-900 line-clamp-2 mb-1 leading-snug">
+
+                {/* Content area */}
+                <div className="p-3 sm:p-4 flex flex-col flex-grow sm:border-t sm:border-slate-100">
+                  <h3 className="text-sm md:text-base font-bold text-slate-900 line-clamp-2 mb-1 leading-snug group-hover:text-blue-700 transition-colors">
                     {deal.title}
                   </h3>
-                  
+
                   {deal.description && (
                     <p className="text-xs text-slate-500 line-clamp-2 mb-3">
                       {deal.description}
                     </p>
                   )}
-                  
-                  <p className="text-blue-700 font-black text-base md:text-lg mt-auto">
+
+                  <p className="text-blue-700 font-black text-base md:text-lg mt-auto pt-2">
                     UGX {deal.price}
                   </p>
                 </div>
