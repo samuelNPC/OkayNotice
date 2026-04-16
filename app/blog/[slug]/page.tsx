@@ -167,15 +167,24 @@ export default async function SinglePostPage({ params }: { params: { slug: strin
           </div>
         )}
 
-        {/* Content - UPGRADED TO SUPPORT FULL MARKDOWN AND HTML */}
-        <div className="prose prose-lg prose-blue prose-img:rounded-none max-w-none mb-10 text-slate-800 leading-relaxed">
-          <ReactMarkdown 
-            remarkPlugins={[remarkGfm]} 
-            rehypePlugins={[rehypeRaw]}
-          >
-            {post.content}
-          </ReactMarkdown>
-        </div>
+        {/* Content - FIXED WITH BETTER HEADINGS AND SPACING */}
+<div className="prose prose-lg prose-blue max-w-none mb-10 
+  text-slate-800 leading-relaxed
+  prose-headings:font-black prose-headings:text-slate-900 prose-headings:tracking-tight
+  prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4
+  prose-p:mb-6
+  prose-strong:text-slate-900 prose-strong:font-bold
+  prose-img:rounded-none
+  prose-a:text-blue-600 prose-a:font-bold hover:prose-a:underline
+">
+  <ReactMarkdown 
+    remarkPlugins={[remarkGfm]} 
+    rehypePlugins={[rehypeRaw]}
+  >
+    {post.content}
+  </ReactMarkdown>
+</div>
+
 
         {/* Tags Section */}
         {post.tags && post.tags.length > 0 && (
