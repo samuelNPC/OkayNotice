@@ -158,10 +158,10 @@ export default async function HomePage() {
 
           <hr className="border-slate-200 my-10" />
 
-          {/* Latest Articles */}
+                    {/* Latest Articles */}
           <section>
             <h2 className="text-xl md:text-2xl font-black text-slate-800 mb-6">Latest Articles</h2>
-            
+
             {/* Mobile Latest Articles */}
             <div className="md:hidden">
               {latestPosts.map((post, index) => (
@@ -175,7 +175,7 @@ export default async function HomePage() {
                       />
                     </div>
                     <div className="flex flex-col">
-                      <h3 className="text-base font-bold text-slate-900 leading-snug group-hover:text-blue-700 transition-colors mb-1 line-clamp-2">
+                      <h3 className="text-base font-bold text-blue-700 leading-snug group-hover:text-blue-900 transition-colors mb-1 line-clamp-2">
                         {post.title}
                       </h3>
                       <p className="text-sm text-slate-500 line-clamp-2">
@@ -215,7 +215,7 @@ export default async function HomePage() {
                       />
                     </div>
                     <div className="p-5 flex flex-col flex-grow">
-                      <h3 className="text-lg font-bold text-slate-800 leading-snug group-hover:text-blue-700 transition-colors mb-2 line-clamp-2">
+                      <h3 className="text-lg font-bold text-blue-700 leading-snug group-hover:text-blue-900 transition-colors mb-2 line-clamp-2">
                         {post.title}
                       </h3>
                       <p className="text-sm text-slate-500 line-clamp-2">
@@ -233,6 +233,7 @@ export default async function HomePage() {
               </Link>
             </div>
           </section>
+
 
           {/* NEWSLETTER */}
           <NewsletterForm />
