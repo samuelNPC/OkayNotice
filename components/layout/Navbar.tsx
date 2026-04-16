@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/components/context/AuthContext";
 
@@ -42,16 +41,10 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
 
-            {/* Logo */}
-            <Link href="/" className="relative z-50 flex items-center">
-              <Image 
-                src="/logo.png" 
-                alt="OkayNotice Logo" 
-                width={180} 
-                height={40} 
-                className="w-auto h-8 md:h-10 object-contain" 
-                priority
-              />
+            {/* Text Logo */}
+            <Link href="/" className="text-2xl font-black tracking-tight relative z-50">
+              <span className="text-slate-900">Okay</span>
+              <span className="text-blue-600">Notice</span>
             </Link>
 
             <nav className="hidden md:flex items-center space-x-8">
