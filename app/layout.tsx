@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Analytics } from "@vercel/analytics/react";
+import { AuthProvider } from "@/components/context/AuthContext"; // ADDED IMPORT
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -66,12 +67,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} bg-slate-50 text-slate-900 flex flex-col min-h-screen`}>
-        <Navbar />
-        {/* Removed max-w constraints here so individual page sections can be full-width */}
-        <main className="flex-grow w-full">
-          {children}
-        </main>
-        <Footer />
+        {/* WRAPPED APP IN AUTHPROVIDER */}
+        <AuthProvider>
+          <Navbar />
+          <main className="flex-grow w-full">
+            {children}
+          </main>
+          <Footer />
+        </AuthProvider>
         <Analytics />
       </body>
     </html>
