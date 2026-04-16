@@ -9,8 +9,7 @@ interface Post {
   slug: string;
   title: string;
   coverImage: string;
-  author?: string;
-  authorImage?: string;
+  excerpt?: string; // Added excerpt to the interface
   createdAt?: any;
 }
 
@@ -40,8 +39,6 @@ export default function FeaturedCarousel({ posts }: { posts: Post[] }) {
   };
 
   if (posts.length === 0) return null;
-
-  const defaultAvatar = "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg";
 
   return (
     <div className="relative w-full">
@@ -79,29 +76,21 @@ export default function FeaturedCarousel({ posts }: { posts: Post[] }) {
 
             <div className="p-5 flex flex-col flex-grow">
               {/* Title: Blue by default, Black on hover */}
-              <h3 className="font-black text-blue-600 group-hover:text-slate-900 text-lg leading-snug line-clamp-2 mb-4 transition-colors duration-300">
+              <h3 className="font-black text-blue-600 group-hover:text-slate-900 text-lg leading-snug line-clamp-2 mb-2 transition-colors duration-300">
                 {post.title}
               </h3>
 
-              {/* Read Article Link */}
-              <div className="flex items-center text-xs font-bold text-blue-600 mb-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                READ ARTICLE <ArrowRight size={14} className="ml-1" />
-              </div>
+              {/* 2-Line Excerpt */}
+              <p className="text-sm text-slate-500 line-clamp-2 mb-6">
+                {post.excerpt || "Read more about this topic and discover insights tailored for you."}
+              </p>
 
-              <div className="flex items-center justify-between mt-auto pt-4 border-t border-slate-100">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 rounded-full bg-slate-200 overflow-hidden border border-slate-300">
-                    <img 
-                      src={post.authorImage || defaultAvatar} 
-                      alt="Author" 
-                      className="w-full h-full object-cover" 
-                    />
-                  </div>
-                  {/* Author Name: Forced to Okay Notice and Orange color */}
-                  <span className="text-sm text-orange-600 font-bold">
-                    {post.author || "Okay Notice"}
-                  </span>
-                </div>
+              {/* Read Full Article Button (Pushed to bottom using mt-auto) */}
+              <div className="mt-auto">
+                <span className="inline-flex items-center justify-center font-bold text-xs uppercase tracking-wider text-blue-700 bg-blue-50 px-4 py-2.5 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition-all duration-300 w-full sm:w-auto">
+                  Read Full Article 
+                  <ArrowRight size={14} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                </span>
               </div>
             </div>
           </Link>
