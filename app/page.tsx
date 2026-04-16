@@ -3,12 +3,11 @@ import { collection, getDocs, query, orderBy, limit, where } from "firebase/fire
 import { db } from "@/lib/firebase";
 import FeaturedCarousel from "@/components/home/FeaturedCarousel";
 import NewsletterForm from "@/components/home/NewsletterForm";
-import { FileText, Wrench, ShoppingBag, LayoutGrid, AlertCircle } from "lucide-react";
+import MoreButton from "@/components/home/MoreButton";
+import { FileText, Wrench, ShoppingBag, AlertCircle } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
-// FIX: Safely convert Firebase Timestamps to strings so Next.js doesn't crash 
-// when passing this data to the Client Component (FeaturedCarousel)
 const serializeDoc = (doc: any) => {
   const data = doc.data();
   return {
@@ -64,17 +63,8 @@ export default async function HomePage() {
                 <span className="font-bold text-slate-800">Deals</span>
               </Link>
               
-              <button 
-                onClick={() => {
-                  if (typeof window !== 'undefined') {
-                    document.querySelector<HTMLButtonElement>('button[aria-label="Toggle Menu"]')?.click();
-                  }
-                }}
-                className="flex items-center justify-center space-x-3 bg-white border border-slate-100 shadow-sm py-4 rounded-2xl hover:border-blue-200 transition"
-              >
-                <LayoutGrid size={20} className="text-blue-500" />
-                <span className="font-bold text-slate-800">More</span>
-              </button>
+              {/* Client Component triggering the mobile menu */}
+              <MoreButton />
             </div>
           </section>
 
@@ -129,6 +119,14 @@ export default async function HomePage() {
                   </div>
                 </Link>
               ))}
+
+              {/* 11th Item: View All Blogs Button */}
+              <Link 
+                href="/blog" 
+                className="flex items-center justify-center w-full py-4 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-blue-600 font-bold rounded-2xl transition-colors mt-2 shadow-sm"
+              >
+                View All Blogs &rarr;
+              </Link>
             </div>
           </section>
 
@@ -139,7 +137,6 @@ export default async function HomePage() {
       </div>
     );
   } catch (error) {
-    console.error("Homepage Error:", error);
     return (
       <div className="min-h-[50vh] flex flex-col items-center justify-center text-slate-500 space-y-4">
         <AlertCircle size={40} className="text-red-500" />
