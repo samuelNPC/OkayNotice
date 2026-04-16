@@ -5,7 +5,7 @@ import { collection, getDocs, query, where, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
-import { ChevronLeft, MoreVertical } from "lucide-react";
+import { ChevronLeft, MoreVertical, Tag } from "lucide-react";
 import ShareButtons from "@/components/blog/ShareButtons";
 import FloatingLike from "@/components/blog/FloatingLike";
 
@@ -37,7 +37,7 @@ async function getRelatedPosts(category: string, currentPostId: string) {
     .slice(0, 3); // Return only 3 related posts
 }
 
-// 🚀 FULLY DYNAMIC SEO & OPEN GRAPH
+// 🚀 FULLY DYNAMIC SEO & OPEN GRAPH (Now using metaTitle & metaDescription)
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const post = await getPost(params.slug);
 
@@ -52,16 +52,20 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const ogImage = post.coverImage || "https://okaynotice.com/og-image.jpg";
   const publishedDate = post.createdAt ? new Date(post.createdAt).toISOString() : new Date().toISOString();
 
+  // Prefer custom SEO meta fields, fallback to standard title/excerpt
+  const displayTitle = post.metaTitle || post.title;
+  const displayDescription = post.metaDescription || post.excerpt;
+
   return {
-    title: post.title,
-    description: post.excerpt,
+    title: displayTitle,
+    description: displayDescription,
     authors: [{ name: post.author || "OkayNotice" }],
     alternates: {
       canonical: postUrl,
     },
     openGraph: {
-      title: post.title,
-      description: post.excerpt,
+      title: displayTitle,
+      description: displayDescription,
       url: postUrl,
       siteName: "OkayNotice",
       type: "article",
@@ -78,8 +82,8 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     },
     twitter: {
       card: "summary_large_image",
-      title: post.title,
-      description: post.excerpt,
+      title: displayTitle,
+      description: displayDescription,
       images: [ogImage],
     },
   };
@@ -102,7 +106,7 @@ export default async function SinglePostPage({ params }: { params: { slug: strin
     <div className="bg-white min-h-screen pb-24">
 
       {/* Mobile Top Navigation (Matching Screenshot) */}
-      <div className="md:hidden flex items-center justify-between px-4 py-4 sticky top-0 bg-white/90 backdrop-blur-md z-40">
+      <div className="md:hidden flex items-center justify-between px-4 py-4 sticky top-0 bg-white/90 backdrop-blur-md z-40 border-b border-slate-100">
         <Link href="/" className="text-slate-800">
           <ChevronLeft size={28} />
         </Link>
@@ -111,17 +115,26 @@ export default async function SinglePostPage({ params }: { params: { slug: strin
         </button>
       </div>
 
-      <article className="max-w-2xl mx-auto px-4 sm:px-6 pt-4 md:pt-12">
+      <article className="max-w-2xl mx-auto px-4 sm:px-6 pt-6 md:pt-12">
+
+        {/* Category Tag */}
+        {post.category && (
+          <div className="mb-4">
+            <Link href={`/blog?category=${post.category}`} className="inline-block bg-blue-50 text-blue-700 text-xs font-bold px-3 py-1 uppercase tracking-wider hover:bg-blue-100 transition-colors">
+              {post.category}
+            </Link>
+          </div>
+        )}
 
         {/* Title */}
         <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 mb-6 leading-tight md:leading-tight">
           {post.title}
         </h1>
 
-        {/* Editor Info & Share Row */}
+        {/* Editor Info, Read Time & Share Row */}
         <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-6">
           <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 rounded-full overflow-hidden bg-slate-100 border border-slate-200">
+            <div className="w-12 h-12 overflow-hidden bg-slate-100 border border-slate-200">
               <img 
                 src={post.authorImage || defaultAvatar} 
                 alt="Editor" 
@@ -130,7 +143,9 @@ export default async function SinglePostPage({ params }: { params: { slug: strin
             </div>
             <div>
               <p className="font-bold text-slate-900 text-sm">{post.author || "OkayNotice"}</p>
-              <p className="text-slate-500 text-xs">{timeAgo}</p>
+              <p className="text-slate-500 text-xs">
+                {timeAgo} {post.readTime && <span className="mx-1 font-bold text-slate-300">•</span>} <span className="text-blue-600 font-medium">{post.readTime}</span>
+              </p>
             </div>
           </div>
 
@@ -139,7 +154,7 @@ export default async function SinglePostPage({ params }: { params: { slug: strin
 
         {/* Cover Image */}
         {post.coverImage && (
-          <div className="relative w-full aspect-[16/9] md:rounded-2xl overflow-hidden mb-10 -mx-4 md:mx-0 md:w-auto bg-slate-100">
+          <div className="relative w-full aspect-[16/9] overflow-hidden mb-10 -mx-4 md:mx-0 md:w-auto bg-slate-100 border-y border-slate-200 md:border-x">
             <Image 
               src={post.coverImage} 
               alt={post.title} 
@@ -151,9 +166,23 @@ export default async function SinglePostPage({ params }: { params: { slug: strin
         )}
 
         {/* Content - Restored ReactMarkdown */}
-        <div className="prose prose-lg prose-blue prose-img:rounded-none max-w-none mb-16 text-slate-800 leading-relaxed">
+        <div className="prose prose-lg prose-blue prose-img:rounded-none max-w-none mb-10 text-slate-800 leading-relaxed">
           <ReactMarkdown>{post.content}</ReactMarkdown>
         </div>
+
+        {/* Tags Section */}
+        {post.tags && post.tags.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-16 pt-6 border-t border-slate-100">
+            <div className="w-full flex items-center text-slate-400 text-sm font-bold uppercase mb-2">
+              <Tag size={16} className="mr-2" /> Tags
+            </div>
+            {post.tags.map((tag: string, index: number) => (
+              <span key={index} className="bg-slate-50 border border-slate-200 text-slate-600 text-sm font-medium px-4 py-1 hover:border-blue-300 hover:text-blue-700 transition-colors cursor-pointer">
+                #{tag}
+              </span>
+            ))}
+          </div>
+        )}
 
       </article>
 
@@ -167,9 +196,9 @@ export default async function SinglePostPage({ params }: { params: { slug: strin
                 <Link 
                   key={relatedPost.id} 
                   href={`/blog/${relatedPost.slug}`} 
-                  className="group bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:border-blue-300 transition-all flex flex-col"
+                  className="group bg-white overflow-hidden border border-slate-200 hover:border-blue-300 transition-all flex flex-col"
                 >
-                  <div className="aspect-[4/3] w-full bg-slate-100 overflow-hidden relative">
+                  <div className="aspect-[4/3] w-full bg-slate-100 overflow-hidden relative border-b border-slate-100">
                     <img 
                       src={relatedPost.coverImage || "/api/placeholder/400/300"} 
                       alt={relatedPost.title} 
@@ -177,7 +206,7 @@ export default async function SinglePostPage({ params }: { params: { slug: strin
                     />
                   </div>
                   <div className="p-4 flex flex-col flex-grow">
-                    <h3 className="font-bold text-slate-900 leading-snug group-hover:text-blue-600 transition-colors line-clamp-2">
+                    <h3 className="font-bold text-slate-900 leading-snug group-hover:text-blue-700 transition-colors line-clamp-2">
                       {relatedPost.title}
                     </h3>
                   </div>
