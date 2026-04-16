@@ -10,6 +10,7 @@ interface Post {
   title: string;
   coverImage: string;
   author?: string;
+  authorImage?: string;
   createdAt?: any;
 }
 
@@ -26,7 +27,7 @@ export default function FeaturedCarousel({ posts }: { posts: Post[] }) {
           scrollRef.current.scrollBy({ left: 300, behavior: "smooth" });
         }
       }
-    }, 4000); // Auto-scroll every 4 seconds
+    }, 4000); 
 
     return () => clearInterval(interval);
   }, []);
@@ -40,15 +41,18 @@ export default function FeaturedCarousel({ posts }: { posts: Post[] }) {
 
   if (posts.length === 0) return null;
 
+  // We use a generic Cloudinary placeholder until your profile page is built
+  const defaultAvatar = "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg";
+
   return (
     <div className="relative w-full">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold text-slate-900">Featured</h2>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-black text-slate-800">Featured</h2>
         <div className="hidden md:flex space-x-2">
-          <button onClick={() => scroll("left")} className="p-1 bg-slate-100 hover:bg-slate-200 rounded-full text-slate-600 transition">
+          <button onClick={() => scroll("left")} className="p-2 bg-white border border-slate-200 hover:bg-slate-50 rounded-full text-slate-600 transition shadow-sm">
             <ChevronLeft size={20} />
           </button>
-          <button onClick={() => scroll("right")} className="p-1 bg-slate-100 hover:bg-slate-200 rounded-full text-slate-600 transition">
+          <button onClick={() => scroll("right")} className="p-2 bg-white border border-slate-200 hover:bg-slate-50 rounded-full text-slate-600 transition shadow-sm">
             <ChevronRight size={20} />
           </button>
         </div>
@@ -56,32 +60,36 @@ export default function FeaturedCarousel({ posts }: { posts: Post[] }) {
 
       <div 
         ref={scrollRef}
-        className="flex overflow-x-auto gap-4 snap-x snap-mandatory scrollbar-hide pb-4"
+        className="flex overflow-x-auto gap-5 snap-x snap-mandatory scrollbar-hide pb-4"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         {posts.map((post) => (
           <Link 
             key={post.id} 
             href={`/blog/${post.slug}`}
-            className="shrink-0 w-[280px] md:w-[320px] snap-start bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100 flex flex-col"
+            className="shrink-0 w-[280px] md:w-[340px] snap-start bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-200 flex flex-col hover:border-blue-300 transition-colors"
           >
-            <div className="h-40 w-full overflow-hidden">
+            <div className="h-48 w-full overflow-hidden">
               <img 
                 src={post.coverImage || "/api/placeholder/400/300"} 
                 alt={post.title} 
                 className="w-full h-full object-cover"
               />
             </div>
-            <div className="p-4 flex flex-col flex-grow">
-              <h3 className="font-bold text-slate-900 leading-snug line-clamp-2 mb-4">{post.title}</h3>
-              <div className="flex items-center justify-between mt-auto pt-2 border-t border-slate-50">
-                <div className="flex items-center space-x-2">
-                  <div className="w-6 h-6 rounded-full bg-slate-200 overflow-hidden">
-                    <img src="/logo.png" alt="Author" className="w-full h-full object-cover opacity-50" />
+            <div className="p-5 flex flex-col flex-grow">
+              <h3 className="font-bold text-slate-900 text-lg leading-snug line-clamp-2 mb-4">{post.title}</h3>
+              <div className="flex items-center justify-between mt-auto pt-4 border-t border-slate-100">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 rounded-full bg-slate-200 overflow-hidden border border-slate-300">
+                    <img 
+                      src={post.authorImage || defaultAvatar} 
+                      alt="Author" 
+                      className="w-full h-full object-cover" 
+                    />
                   </div>
-                  <span className="text-xs text-slate-500 font-medium">{post.author || "OkayNotice"}</span>
+                  <span className="text-sm text-slate-600 font-medium">{post.author || "OkayNotice"}</span>
                 </div>
-                <Bookmark size={16} className="text-slate-400" />
+                <Bookmark size={18} className="text-slate-400 hover:text-blue-600 transition-colors" />
               </div>
             </div>
           </Link>
