@@ -9,8 +9,8 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
   
-  // Just grabbing the user directly, ignoring loading states
-  const { user } = useAuth();
+  // Using the exact check from your AdminDashboard
+  const { user, loading } = useAuth();
 
   useEffect(() => {
     if (isOpen) {
@@ -61,8 +61,8 @@ export default function Navbar() {
                 </Link>
               ))}
 
-              {/* Desktop Admin Button */}
-              {user && (
+              {/* Desktop Admin Button - Only shows if finished loading and user exists */}
+              {!loading && user && (
                 <Link 
                   href="/admin"
                   className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-lg font-medium transition shadow-sm"
@@ -73,10 +73,10 @@ export default function Navbar() {
             </nav>
 
             {/* 3. Mobile Right Side (Admin Button + Hamburger) */}
-            <div className="flex items-center gap-3 md:hidden relative z-50">
+            <div className="flex items-center gap-4 md:hidden relative z-50">
               
               {/* Mobile Admin Button - Right between Logo and Hamburger */}
-              {user && (
+              {!loading && user && (
                 <Link 
                   href="/admin"
                   className="bg-slate-900 text-white px-3 py-1.5 rounded-md text-sm font-bold shadow-sm"
@@ -128,7 +128,8 @@ export default function Navbar() {
             </Link>
           ))}
 
-          {user && (
+          {/* Drawer Admin Button */}
+          {!loading && user && (
             <div className="pt-4 mt-2 border-t border-slate-200">
               <Link 
                 href="/admin" 
