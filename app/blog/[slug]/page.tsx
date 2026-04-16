@@ -5,8 +5,10 @@ import { collection, getDocs, query, where, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
+import { ChevronLeft, MoreVertical } from "lucide-react";
+import ShareButtons from "@/components/blog/ShareButtons";
+import FloatingLike from "@/components/blog/FloatingLike";
 
-// Revalidate page occasionally to get fresh content
 export const revalidate = 60;
 
 async function getPost(slug: string) {
@@ -16,13 +18,27 @@ async function getPost(slug: string) {
 
   if (snapshot.empty) return null;
 
-  return { id: snapshot.docs[0].id, ...snapshot.docs[0].data() } as any;
+  const data = snapshot.docs[0].data();
+  return { 
+    id: snapshot.docs[0].id, 
+    ...data,
+    createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : new Date(),
+  } as any;
 }
 
-// Generate dynamic SEO metadata
+async function getRelatedPosts(category: string, currentPostId: string) {
+  const postsRef = collection(db, "posts");
+  const q = query(postsRef, where("category", "==", category), limit(4));
+  const snapshot = await getDocs(q);
+  
+  return snapshot.docs
+    .map(doc => ({ id: doc.id, ...doc.data() } as any))
+    .filter(post => post.id !== currentPostId)
+    .slice(0, 3); // Return only 3 related posts
+}
+
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const post = await getPost(params.slug);
-
   if (!post) return { title: "Post Not Found" };
 
   return {
@@ -38,48 +54,108 @@ export default async function SinglePostPage({ params }: { params: { slug: strin
   const post = await getPost(params.slug);
 
   if (!post) {
-    notFound(); // Triggers the Next.js 404 page
+    notFound();
   }
 
+  const relatedPosts = await getRelatedPosts(post.category, post.id);
+  
+  // Format Date safely
+  const timeAgo = post.createdAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const defaultAvatar = "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg";
+
   return (
-    <article className="max-w-3xl mx-auto py-10">
-      {/* Category Tag & Date */}
-      <div className="flex items-center space-x-4 mb-6">
-        <span className="bg-blue-100 text-blue-700 text-sm font-bold px-3 py-1 rounded-full uppercase tracking-wide">
-          {post.category}
-        </span>
-        <Link href="/blog" className="text-slate-500 hover:text-blue-600 text-sm font-medium transition">
-          &larr; Back to blog
+    <div className="bg-white min-h-screen pb-24">
+      
+      {/* Mobile Top Navigation (Matching Screenshot) */}
+      <div className="md:hidden flex items-center justify-between px-4 py-4 sticky top-0 bg-white/90 backdrop-blur-md z-40">
+        <Link href="/" className="text-slate-800">
+          <ChevronLeft size={28} />
         </Link>
+        <button className="text-slate-800">
+          <MoreVertical size={24} />
+        </button>
       </div>
 
-      {/* Title */}
-      <h1 className="text-3xl md:text-5xl font-bold text-slate-900 mb-6 leading-tight">
-        {post.title}
-      </h1>
+      <article className="max-w-2xl mx-auto px-4 sm:px-6 pt-4 md:pt-12">
+        
+        {/* Title */}
+        <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 mb-6 leading-tight md:leading-tight">
+          {post.title}
+        </h1>
 
-      {/* Cover Image */}
-      {post.coverImage && (
-        <div className="relative w-full h-[300px] md:h-[450px] rounded-2xl overflow-hidden mb-10 shadow-sm border border-slate-200">
-          <Image 
-            src={post.coverImage} 
-            alt={post.title} 
-            fill 
-            className="object-cover"
-            priority
-          />
+        {/* Editor Info & Share Row */}
+        <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-6">
+          <div className="flex items-center space-x-3">
+            <div className="w-12 h-12 rounded-full overflow-hidden bg-slate-100 border border-slate-200">
+              <img 
+                src={post.authorImage || defaultAvatar} 
+                alt="Editor" 
+                className="w-full h-full object-cover" 
+              />
+            </div>
+            <div>
+              <p className="font-bold text-slate-900 text-sm">{post.author || "OkayNotice"}</p>
+              <p className="text-slate-500 text-xs">{timeAgo}</p>
+            </div>
+          </div>
+          
+          <ShareButtons title={post.title} />
         </div>
+
+        {/* Cover Image */}
+        {post.coverImage && (
+          <div className="relative w-full aspect-[16/9] md:rounded-2xl overflow-hidden mb-10 -mx-4 md:mx-0 md:w-auto bg-slate-100">
+            <Image 
+              src={post.coverImage} 
+              alt={post.title} 
+              fill 
+              className="object-cover"
+              priority
+            />
+          </div>
+        )}
+
+        {/* Content */}
+        <div className="prose prose-lg prose-slate prose-img:rounded-2xl max-w-none mb-16 text-slate-800 leading-relaxed">
+          <ReactMarkdown>{post.content}</ReactMarkdown>
+        </div>
+
+      </article>
+
+      {/* Related Articles */}
+      {relatedPosts.length > 0 && (
+        <section className="bg-slate-50 py-12 border-t border-slate-100">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6">
+            <h2 className="text-2xl font-black text-slate-900 mb-8">Related Articles</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {relatedPosts.map((relatedPost: any) => (
+                <Link 
+                  key={relatedPost.id} 
+                  href={`/blog/${relatedPost.slug}`} 
+                  className="group bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:border-blue-300 transition-all flex flex-col"
+                >
+                  <div className="aspect-[4/3] w-full bg-slate-100 overflow-hidden relative">
+                    <img 
+                      src={relatedPost.coverImage || "/api/placeholder/400/300"} 
+                      alt={relatedPost.title} 
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                    />
+                  </div>
+                  <div className="p-4 flex flex-col flex-grow">
+                    <h3 className="font-bold text-slate-900 leading-snug group-hover:text-blue-600 transition-colors line-clamp-2">
+                      {relatedPost.title}
+                    </h3>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
       )}
 
-      {/* Post Content rendered safely via ReactMarkdown */}
-      <div className="prose prose-lg prose-slate max-w-none mb-12 bg-white p-6 md:p-10 rounded-2xl shadow-sm border border-slate-200">
-        <ReactMarkdown>{post.content}</ReactMarkdown>
-      </div>
-
-      {/* AdSense Placement Area */}
-      <div className="w-full h-24 bg-slate-200 flex items-center justify-center text-slate-400 rounded-lg text-sm mb-10">
-        [AdSense Article Footer Slot]
-      </div>
-    </article>
+      {/* Floating Interaction */}
+      <FloatingLike postId={post.id} initialLikes={post.likes || 0} />
+      
+    </div>
   );
 }
