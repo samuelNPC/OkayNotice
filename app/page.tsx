@@ -69,7 +69,6 @@ export default async function HomePage() {
     const defaultAvatar = "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg";
 
     return (
-      {/* REMOVED bg-white HERE to let the ambient layout show through */}
       <div className="w-full min-h-screen text-slate-900 pb-20 relative z-10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-8 md:pt-10">
 
@@ -129,38 +128,35 @@ export default async function HomePage() {
 
             <div className="grid grid-cols-3 gap-6 w-full">
               {/* Blog Card */}
-              <Link href="/blog" className="group relative bg-white/80 backdrop-blur-xl border border-white/60 rounded-3xl p-8 hover:border-orange-300 hover:shadow-2xl hover:shadow-orange-100/50 transition-all duration-500 hover:-translate-y-2 overflow-hidden flex flex-col items-center text-center">
+              <Link href="/blog" className="group relative bg-white/80 backdrop-blur-xl border border-white/60 rounded-3xl p-8 hover:border-orange-300 hover:shadow-2xl hover:shadow-orange-100/50 transition-all duration-500 hover:-translate-y-2 overflow-hidden flex flex-col items-center justify-center text-center">
                 <div className="absolute inset-0 bg-gradient-to-br from-orange-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="relative z-10">
-                  <div className="w-20 h-20 bg-orange-50 text-orange-500 rounded-2xl flex items-center justify-center mb-6 mx-auto group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500">
+                  <div className="w-20 h-20 bg-orange-50 text-orange-500 rounded-2xl flex items-center justify-center mb-4 mx-auto group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500">
                     <FileText size={40} />
                   </div>
-                  <h3 className="font-black text-2xl text-slate-900 mb-2">Tech Blog</h3>
-                  <p className="text-slate-500 font-medium">Guides, reviews & local fintech news.</p>
+                  <h3 className="font-black text-2xl text-slate-900">Blog</h3>
                 </div>
               </Link>
 
               {/* Tools Card */}
-              <Link href="/tools" className="group relative bg-white/80 backdrop-blur-xl border border-white/60 rounded-3xl p-8 hover:border-pink-300 hover:shadow-2xl hover:shadow-pink-100/50 transition-all duration-500 hover:-translate-y-2 overflow-hidden flex flex-col items-center text-center mt-4 lg:mt-8">
+              <Link href="/tools" className="group relative bg-white/80 backdrop-blur-xl border border-white/60 rounded-3xl p-8 hover:border-pink-300 hover:shadow-2xl hover:shadow-pink-100/50 transition-all duration-500 hover:-translate-y-2 overflow-hidden flex flex-col items-center justify-center text-center mt-4 lg:mt-8">
                 <div className="absolute inset-0 bg-gradient-to-br from-pink-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="relative z-10">
-                  <div className="w-20 h-20 bg-pink-50 text-pink-500 rounded-2xl flex items-center justify-center mb-6 mx-auto group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-500">
+                  <div className="w-20 h-20 bg-pink-50 text-pink-500 rounded-2xl flex items-center justify-center mb-4 mx-auto group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-500">
                     <Wrench size={40} />
                   </div>
-                  <h3 className="font-black text-2xl text-slate-900 mb-2">Calculators</h3>
-                  <p className="text-slate-500 font-medium">MoMo fees & quick loan mathematics.</p>
+                  <h3 className="font-black text-2xl text-slate-900">Tools</h3>
                 </div>
               </Link>
 
               {/* Deals Card */}
-              <Link href="/deals" className="group relative bg-white/80 backdrop-blur-xl border border-white/60 rounded-3xl p-8 hover:border-green-300 hover:shadow-2xl hover:shadow-green-100/50 transition-all duration-500 hover:-translate-y-2 overflow-hidden flex flex-col items-center text-center">
+              <Link href="/deals" className="group relative bg-white/80 backdrop-blur-xl border border-white/60 rounded-3xl p-8 hover:border-green-300 hover:shadow-2xl hover:shadow-green-100/50 transition-all duration-500 hover:-translate-y-2 overflow-hidden flex flex-col items-center justify-center text-center">
                 <div className="absolute inset-0 bg-gradient-to-br from-green-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="relative z-10">
-                  <div className="w-20 h-20 bg-green-50 text-green-500 rounded-2xl flex items-center justify-center mb-6 mx-auto group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500">
+                  <div className="w-20 h-20 bg-green-50 text-green-500 rounded-2xl flex items-center justify-center mb-4 mx-auto group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500">
                     <ShoppingBag size={40} />
                   </div>
-                  <h3 className="font-black text-2xl text-slate-900 mb-2">Gadget Deals</h3>
-                  <p className="text-slate-500 font-medium">Verified discounts via Kabale Online.</p>
+                  <h3 className="font-black text-2xl text-slate-900">Deals</h3>
                 </div>
               </Link>
             </div>
