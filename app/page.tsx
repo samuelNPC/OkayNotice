@@ -4,6 +4,7 @@ import { db } from "@/lib/firebase";
 import NewsletterForm from "@/components/home/NewsletterForm";
 import FeaturedCarousel from "@/components/home/FeaturedCarousel";
 import MoreButton from "@/components/home/MoreButton";
+import WelcomeGreeting from "@/components/home/WelcomeGreeting"; // IMPORTED HERE
 import { FileText, Wrench, ShoppingBag, AlertCircle, Bookmark, Tag } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -72,14 +73,16 @@ export default async function HomePage() {
       <div className="w-full min-h-screen text-slate-900 pb-20 relative z-10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-6 md:pt-8">
 
-          {/* 1. FEATURED STORIES (Now at the top) */}
+          {/* 0. THE SMART GREETING */}
+          <WelcomeGreeting />
+
+          {/* 1. FEATURED STORIES */}
           <section className="md:hidden">
             <FeaturedCarousel posts={displayFeatured} />
           </section>
 
           <section className="hidden md:block">
-            {/* Changed to h1 for SEO since it is now the top of the page */}
-            <h1 className="text-3xl font-black text-slate-800 mb-6">Featured Stories</h1>
+            <h2 className="text-2xl font-black text-slate-800 mb-6">Featured Stories</h2>
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
               {displayFeatured.map((post) => (
                 <Link 
@@ -155,7 +158,7 @@ export default async function HomePage() {
 
           <hr className="border-slate-200/50 my-10" />
 
-          {/* 3. EXPLORE SECTION (The old Hero, moved down to position 3) */}
+          {/* 3. EXPLORE SECTION */}
           <section className="mb-10 md:hidden flex flex-col items-center text-center">
             <h2 className="text-3xl font-black text-slate-900 mb-8 tracking-tight leading-tight">
               Explore <br />
@@ -243,21 +246,27 @@ export default async function HomePage() {
 
           <hr className="border-slate-200/50 my-10" />
 
-          {/* 4. HAND PICKED DEALS */}
+          {/* 4. HAND PICKED DEALS - UPGRADED HEADER */}
           {deals.length > 0 && (
             <section>
-              <div className="flex flex-col mb-8">
+              <div className="flex flex-col mb-8 bg-gradient-to-r from-blue-50/60 to-transparent p-6 rounded-2xl border-l-4 border-blue-600 shadow-sm backdrop-blur-sm">
                 <div className="flex items-center justify-between mb-3">
-                  <h2 className="text-2xl md:text-3xl font-black text-slate-900">Hand Picked Deals</h2>
-                  <Link href="/deals" className="hidden md:block text-sm bg-blue-50/80 text-blue-700 px-4 py-2 rounded-lg font-bold hover:bg-blue-100 transition-colors backdrop-blur-md">
+                  <div className="flex items-center space-x-3">
+                    <div className="bg-blue-100 text-blue-600 p-2 rounded-lg hidden sm:block">
+                      <ShoppingBag size={24} />
+                    </div>
+                    <h2 className="text-2xl md:text-3xl font-black text-slate-900">Hand Picked Deals</h2>
+                  </div>
+                  <Link href="/deals" className="hidden md:block text-sm bg-white/80 text-blue-700 px-4 py-2 rounded-lg font-bold hover:bg-white transition-colors border border-blue-100 shadow-sm">
                     View All Deals &rarr;
                   </Link>
                 </div>
-                <p className="text-slate-600 max-w-3xl leading-relaxed">
-                  Looking for an upgrade? We scour the market to bring you the best discounts on smartphones, laptops, and tech accessories. All items are verified and seamlessly fulfilled through our trusted e-commerce platform, <strong>Kabale Online</strong>.
+                <p className="text-slate-600 max-w-3xl leading-relaxed text-sm sm:text-base font-medium">
+                  Looking for an upgrade? We scour the market to bring you the best discounts on smartphones, laptops, and tech accessories. All items are verified and seamlessly fulfilled through our trusted e-commerce platform, <strong className="text-blue-700">Kabale Online</strong>.
                 </p>
               </div>
 
+              {/* Product cards left exactly as they were */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
                 {deals.map(deal => (
                   <a 
