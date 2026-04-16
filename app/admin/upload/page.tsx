@@ -88,24 +88,46 @@ function EditorForm() {
 
   // ================= CLOUDINARY UPLOAD =================
   const uploadToCloudinary = async (file: File) => {
-    const sigRes = await fetch("app/api/upload-image/route", { method: "POST" });
-    if (!sigRes.ok) throw new Error("Signature API failed");
-    
-    const sigData = await sigRes.json();
-    const fd = new FormData();
-    fd.append("file", file);
-    fd.append("api_key", sigData.apiKey);
-    fd.append("timestamp", sigData.timestamp);
-    fd.append("signature", sigData.signature);
-    fd.append("folder", "kabale_blog"); 
+  console.log("1. Starting upload process for:", file.name);
 
-    const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${sigData.cloudName}/image/upload`, {
-      method: "POST", body: fd
-    });
-    const uploadData = await uploadRes.json();
-    if (uploadData.error) throw new Error(uploadData.error.message);
-    return uploadData.secure_url;
-  };
+  // Use the RELATIVE route, starting with /
+  const sigRes = await fetch("/api/upload-image", { 
+    method: "POST",
+    headers: { "Content-Type": "application/json" }
+  });
+
+  if (!sigRes.ok) {
+    const errorBody = await sigRes.text(); // Get the actual error text
+    console.error("2. Signature API Failed:", errorBody);
+    throw new Error(`Signature API failed: ${sigRes.status} ${errorBody}`);
+  }
+
+  const sigData = await sigRes.json();
+  console.log("3. Signature received:", sigData);
+
+  const fd = new FormData();
+  fd.append("file", file);
+  fd.append("api_key", sigData.apiKey);
+  fd.append("timestamp", sigData.timestamp.toString());
+  fd.append("signature", sigData.signature);
+  fd.append("folder", "kabale_blog"); 
+
+  console.log("4. Sending to Cloudinary...");
+  const uploadRes = await fetch(
+    `https://api.cloudinary.com/v1_1/${sigData.cloudName}/image/upload`, 
+    { method: "POST", body: fd }
+  );
+
+  const uploadData = await uploadRes.json();
+  if (uploadData.error) {
+    console.error("5. Cloudinary Upload Error:", uploadData.error);
+    throw new Error(uploadData.error.message);
+  }
+
+  console.log("6. Upload Success! URL:", uploadData.secure_url);
+  return uploadData.secure_url;
+};
+
 
   // ================= SUBMIT =================
   const handleSubmit = async (e: React.FormEvent) => {
