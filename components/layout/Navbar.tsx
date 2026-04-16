@@ -7,18 +7,11 @@ import { useAuth } from "@/components/context/AuthContext";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [mounted, setMounted] = useState(false); // Prevents hydration errors
   const pathname = usePathname();
   
-  // Extract loading alongside user
-  const { user, loading } = useAuth();
+  // Just grabbing the user directly, ignoring loading states
+  const { user } = useAuth();
 
-  // Handle Hydration
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // Handle Body Scroll Lock
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -30,7 +23,6 @@ export default function Navbar() {
     };
   }, [isOpen]);
 
-  // Close Mobile Menu on Route Change
   useEffect(() => {
     setIsOpen(false);
   }, [pathname]);
@@ -51,12 +43,13 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
 
-            {/* Text Logo */}
+            {/* 1. Text Logo */}
             <Link href="/" className="text-2xl font-black tracking-tight relative z-50">
               <span className="text-slate-900">Okay</span>
               <span className="text-blue-600">Notice</span>
             </Link>
 
+            {/* 2. Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-8">
               {navLinks.map((link) => (
                 <Link 
@@ -68,8 +61,8 @@ export default function Navbar() {
                 </Link>
               ))}
 
-              {/* FIXED CHECK: Ensures component is mounted, auth isn't loading, and user exists */}
-              {mounted && !loading && user && (
+              {/* Desktop Admin Button */}
+              {user && (
                 <Link 
                   href="/admin"
                   className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-lg font-medium transition shadow-sm"
@@ -79,15 +72,31 @@ export default function Navbar() {
               )}
             </nav>
 
-            <button 
-              onClick={() => setIsOpen(!isOpen)} 
-              className="md:hidden relative z-50 w-10 h-10 flex flex-col justify-center items-center group focus:outline-none"
-              aria-label="Toggle Menu"
-            >
-              <span className={`block w-6 h-[2px] bg-slate-900 rounded-full transition-transform duration-300 ease-in-out ${isOpen ? 'rotate-45 translate-y-[6px]' : '-translate-y-1.5'}`} />
-              <span className={`block w-6 h-[2px] bg-slate-900 rounded-full transition-opacity duration-300 ease-in-out ${isOpen ? 'opacity-0' : 'opacity-100'}`} />
-              <span className={`block w-6 h-[2px] bg-slate-900 rounded-full transition-transform duration-300 ease-in-out ${isOpen ? '-rotate-45 -translate-y-[6px]' : 'translate-y-1.5'}`} />
-            </button>
+            {/* 3. Mobile Right Side (Admin Button + Hamburger) */}
+            <div className="flex items-center gap-3 md:hidden relative z-50">
+              
+              {/* Mobile Admin Button - Right between Logo and Hamburger */}
+              {user && (
+                <Link 
+                  href="/admin"
+                  className="bg-slate-900 text-white px-3 py-1.5 rounded-md text-sm font-bold shadow-sm"
+                >
+                  Admin
+                </Link>
+              )}
+
+              {/* Hamburger Button */}
+              <button 
+                onClick={() => setIsOpen(!isOpen)} 
+                className="w-10 h-10 flex flex-col justify-center items-center group focus:outline-none"
+                aria-label="Toggle Menu"
+              >
+                <span className={`block w-6 h-[2px] bg-slate-900 rounded-full transition-transform duration-300 ease-in-out ${isOpen ? 'rotate-45 translate-y-[6px]' : '-translate-y-1.5'}`} />
+                <span className={`block w-6 h-[2px] bg-slate-900 rounded-full transition-opacity duration-300 ease-in-out ${isOpen ? 'opacity-0' : 'opacity-100'}`} />
+                <span className={`block w-6 h-[2px] bg-slate-900 rounded-full transition-transform duration-300 ease-in-out ${isOpen ? '-rotate-45 -translate-y-[6px]' : 'translate-y-1.5'}`} />
+              </button>
+            </div>
+
           </div>
         </div>
       </header>
@@ -119,8 +128,7 @@ export default function Navbar() {
             </Link>
           ))}
 
-          {/* FIXED CHECK FOR MOBILE NAV */}
-          {mounted && !loading && user && (
+          {user && (
             <div className="pt-4 mt-2 border-t border-slate-200">
               <Link 
                 href="/admin" 
