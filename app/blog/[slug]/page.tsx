@@ -154,18 +154,32 @@ export default async function SinglePostPage({ params }: { params: { slug: strin
           <ShareButtons title={post.title} />
         </div>
 
-        {/* Cover Image */}
+                {/* Cover Image - Balanced & Responsive */}
         {post.coverImage && (
-          <div className="relative w-full aspect-[16/9] overflow-hidden mb-10 -mx-4 md:mx-0 md:w-auto bg-slate-100 border-y border-slate-200 md:border-x">
-            <Image 
-              src={post.coverImage} 
-              alt={post.title} 
-              fill 
-              className="object-cover"
-              priority
-            />
+          <div className="relative mb-10 overflow-hidden">
+            {/* Mobile: -mx-4 pulls it edge-to-edge. 
+              Desktop: md:mx-0 resets it. 
+              Rounded-xl adds that modern fintech feel on larger screens.
+            */}
+            <div className="relative w-full aspect-video md:aspect-[21/9] -mx-4 md:mx-0 bg-slate-100 border-y md:border md:border-slate-200 md:rounded-2xl overflow-hidden shadow-sm">
+              <Image 
+                src={post.coverImage} 
+                alt={post.title} 
+                fill 
+                className="object-cover transition-transform duration-700 hover:scale-105"
+                priority
+              />
+            </div>
+            
+            {/* Optional: Small Caption or Image Source credit style */}
+            <div className="mt-3 px-2 md:px-0">
+              <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold">
+                Featured Visual • OkayNotice Tech
+              </p>
+            </div>
           </div>
         )}
+
 
         {/* Content - FIXED WITH BETTER HEADINGS AND SPACING */}
 <div className="prose prose-lg max-w-none mb-10 
