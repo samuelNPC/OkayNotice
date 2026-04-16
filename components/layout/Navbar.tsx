@@ -7,9 +7,18 @@ import { useAuth } from "@/components/context/AuthContext";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false); // Prevents hydration errors
   const pathname = usePathname();
-  const { user } = useAuth();
+  
+  // Extract loading alongside user
+  const { user, loading } = useAuth();
 
+  // Handle Hydration
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Handle Body Scroll Lock
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -21,6 +30,7 @@ export default function Navbar() {
     };
   }, [isOpen]);
 
+  // Close Mobile Menu on Route Change
   useEffect(() => {
     setIsOpen(false);
   }, [pathname]);
@@ -58,7 +68,8 @@ export default function Navbar() {
                 </Link>
               ))}
 
-              {user && (
+              {/* FIXED CHECK: Ensures component is mounted, auth isn't loading, and user exists */}
+              {mounted && !loading && user && (
                 <Link 
                   href="/admin"
                   className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-lg font-medium transition shadow-sm"
@@ -108,7 +119,8 @@ export default function Navbar() {
             </Link>
           ))}
 
-          {user && (
+          {/* FIXED CHECK FOR MOBILE NAV */}
+          {mounted && !loading && user && (
             <div className="pt-4 mt-2 border-t border-slate-200">
               <Link 
                 href="/admin" 
