@@ -9,13 +9,15 @@ interface Post {
   slug: string;
   title: string;
   coverImage: string;
-  excerpt?: string; // Added excerpt to the interface
+  category?: string;
+  excerpt?: string;
   createdAt?: any;
 }
 
 export default function FeaturedCarousel({ posts }: { posts: Post[] }) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // Auto-scroll logic (Only affects mobile view where ref is active)
   useEffect(() => {
     const interval = setInterval(() => {
       if (scrollRef.current) {
@@ -40,62 +42,135 @@ export default function FeaturedCarousel({ posts }: { posts: Post[] }) {
 
   if (posts.length === 0) return null;
 
+  // The first post is our "Hero", the next 4 are the "Sidekick" posts
+  const heroPost = posts[0];
+  const sidekickPosts = posts.slice(1, 5); 
+
   return (
-    <div className="relative w-full">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-black text-slate-800">Featured</h2>
-        <div className="hidden md:flex space-x-2">
-          <button onClick={() => scroll("left")} className="p-2 bg-white border border-slate-200 hover:bg-slate-50 rounded-full text-slate-600 transition shadow-sm">
-            <ChevronLeft size={20} />
-          </button>
-          <button onClick={() => scroll("right")} className="p-2 bg-white border border-slate-200 hover:bg-slate-50 rounded-full text-slate-600 transition shadow-sm">
-            <ChevronRight size={20} />
-          </button>
+    <div className="relative w-full mb-12">
+      
+      {/* ------------------------------------------------------------------
+          MOBILE VIEW: The Original Swiping Carousel 
+          ------------------------------------------------------------------ */}
+      <div className="md:hidden">
+        <div className="flex items-center justify-between mb-4 px-1">
+          <h2 className="text-2xl font-black text-slate-800">Featured</h2>
+        </div>
+
+        <div 
+          ref={scrollRef}
+          className="flex overflow-x-auto gap-4 snap-x snap-mandatory scrollbar-hide pb-4 px-1"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        >
+          {posts.map((post) => (
+            <Link 
+              key={post.id} 
+              href={`/blog/${post.slug}`}
+              className="group shrink-0 w-[280px] snap-start bg-white/80 backdrop-blur-md rounded-2xl overflow-hidden shadow-sm border border-slate-200/60 flex flex-col transition-all duration-300"
+            >
+              <div className="h-48 w-full overflow-hidden bg-slate-100 relative">
+                {post.category && (
+                  <span className="absolute top-3 left-3 z-10 bg-blue-600/90 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-1 uppercase tracking-wider rounded-sm">
+                    {post.category}
+                  </span>
+                )}
+                <img 
+                  src={post.coverImage || "/api/placeholder/400/300"} 
+                  alt={post.title} 
+                  className="w-full h-full object-cover transition-transform duration-500 scale-105 group-hover:scale-100"
+                />
+              </div>
+              <div className="p-5 flex flex-col flex-grow">
+                <h3 className="font-black text-slate-900 group-hover:text-blue-600 text-lg leading-snug line-clamp-2 mb-2 transition-colors duration-300">
+                  {post.title}
+                </h3>
+                <p className="text-sm text-slate-500 line-clamp-2 mb-4">
+                  {post.excerpt || "Read more about this topic and discover insights tailored for you."}
+                </p>
+                <div className="mt-auto">
+                  <span className="inline-flex items-center text-xs font-bold text-blue-600 uppercase tracking-wider">
+                    Read Article <ArrowRight size={14} className="ml-1" />
+                  </span>
+                </div>
+              </div>
+            </Link>
+          ))}
         </div>
       </div>
 
-      <div 
-        ref={scrollRef}
-        className="flex overflow-x-auto gap-5 snap-x snap-mandatory scrollbar-hide pb-4"
-        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-      >
-        {posts.map((post) => (
+      {/* ------------------------------------------------------------------
+          DESKTOP VIEW: The Magazine "Bento Box" Layout
+          ------------------------------------------------------------------ */}
+      <div className="hidden md:block">
+        <h2 className="text-3xl font-black text-slate-800 mb-6">Featured Stories</h2>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[500px]">
+          
+          {/* Main Hero Card (Spans 8 columns) */}
           <Link 
-            key={post.id} 
-            href={`/blog/${post.slug}`}
-            className="group shrink-0 w-[280px] md:w-[340px] snap-start bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-200 flex flex-col transition-all duration-300 hover:border-blue-300 hover:shadow-md"
+            href={`/blog/${heroPost.slug}`}
+            className="group lg:col-span-8 relative rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 flex flex-col justify-end"
           >
-            {/* Image Container with Zoom-Out Effect */}
-            <div className="h-48 w-full overflow-hidden bg-slate-100">
-              <img 
-                src={post.coverImage || "/api/placeholder/400/300"} 
-                alt={post.title} 
-                className="w-full h-full object-cover transition-transform duration-500 scale-110 group-hover:scale-100"
-              />
-            </div>
-
-            <div className="p-5 flex flex-col flex-grow">
-              {/* Title: Blue by default, Black on hover */}
-              <h3 className="font-black text-blue-600 group-hover:text-slate-900 text-lg leading-snug line-clamp-2 mb-2 transition-colors duration-300">
-                {post.title}
-              </h3>
-
-              {/* 2-Line Excerpt */}
-              <p className="text-sm text-slate-500 line-clamp-2 mb-6">
-                {post.excerpt || "Read more about this topic and discover insights tailored for you."}
-              </p>
-
-              {/* Read Full Article Button (Pushed to bottom using mt-auto) */}
-              <div className="mt-auto">
-                <span className="inline-flex items-center justify-center font-bold text-xs uppercase tracking-wider text-blue-700 bg-blue-50 px-4 py-2.5 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition-all duration-300 w-full sm:w-auto">
-                  Read Full Article 
-                  <ArrowRight size={14} className="ml-2 group-hover:translate-x-1 transition-transform" />
+            {/* Background Image */}
+            <img 
+              src={heroPost.coverImage || "/api/placeholder/800/500"} 
+              alt={heroPost.title} 
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+            {/* Gradient Overlay for Text Readability */}
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/50 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
+            
+            {/* Hero Content */}
+            <div className="relative z-10 p-10 w-full lg:w-4/5">
+              {heroPost.category && (
+                <span className="inline-block bg-blue-600 text-white text-xs font-bold px-3 py-1 mb-4 uppercase tracking-wider rounded-sm">
+                  {heroPost.category}
                 </span>
-              </div>
+              )}
+              <h3 className="text-3xl lg:text-4xl font-black text-white leading-tight mb-4 group-hover:text-blue-300 transition-colors">
+                {heroPost.title}
+              </h3>
+              <p className="text-slate-200 text-lg line-clamp-2 mb-6">
+                {heroPost.excerpt || "Dive into our top story for the latest insights and detailed breakdowns."}
+              </p>
+              <span className="inline-flex items-center font-bold text-sm uppercase tracking-wider text-white bg-white/20 hover:bg-blue-600 backdrop-blur-md px-5 py-3 rounded-xl transition-all duration-300">
+                Read Full Article <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform" />
+              </span>
             </div>
           </Link>
-        ))}
+
+          {/* Sidekick Cards (Span 4 columns, stacked 2x2) */}
+          <div className="lg:col-span-4 grid grid-rows-4 gap-4 h-full">
+            {sidekickPosts.map((post) => (
+              <Link 
+                key={post.id} 
+                href={`/blog/${post.slug}`}
+                className="group bg-white/80 backdrop-blur-md border border-slate-200/60 rounded-2xl overflow-hidden flex items-center p-3 hover:border-blue-300 hover:shadow-md transition-all duration-300"
+              >
+                <div className="h-20 w-24 shrink-0 rounded-xl overflow-hidden relative">
+                  <img 
+                    src={post.coverImage || "/api/placeholder/150/150"} 
+                    alt={post.title} 
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                </div>
+                <div className="ml-4 flex flex-col justify-center h-full">
+                  {post.category && (
+                    <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider mb-1">
+                      {post.category}
+                    </span>
+                  )}
+                  <h4 className="font-bold text-slate-900 text-sm leading-snug line-clamp-2 group-hover:text-blue-700 transition-colors">
+                    {post.title}
+                  </h4>
+                </div>
+              </Link>
+            ))}
+          </div>
+
+        </div>
       </div>
+
     </div>
   );
 }
