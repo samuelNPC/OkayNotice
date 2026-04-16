@@ -4,7 +4,8 @@ import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Analytics } from "@vercel/analytics/react";
-import { AuthProvider } from "@/components/context/AuthContext"; // ADDED IMPORT
+import { AuthProvider } from "@/components/context/AuthContext";
+import AmbientBackground from "@/components/home/AmbientBackground";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -66,11 +67,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-slate-50 text-slate-900 flex flex-col min-h-screen`}>
+      <body className={`${inter.className} bg-slate-50 text-slate-900 flex flex-col min-h-screen relative`}>
+        
+        {/* The Global Ambient Background */}
+        <AmbientBackground />
+
         {/* WRAPPED APP IN AUTHPROVIDER */}
         <AuthProvider>
           <Navbar />
-          <main className="flex-grow w-full">
+          <main className="flex-grow w-full relative z-10">
             {children}
           </main>
           <Footer />
