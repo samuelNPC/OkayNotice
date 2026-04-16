@@ -150,7 +150,7 @@ export default async function HomePage() {
 
           <hr className="border-slate-200 my-10" />
 
-                    {/* Hand Picked Deals */}
+                              {/* Hand Picked Deals */}
           {deals.length > 0 && (
             <section>
               <div className="flex flex-col mb-8">
@@ -165,12 +165,12 @@ export default async function HomePage() {
                   Looking for an upgrade? We scour the market to bring you the best discounts on smartphones, laptops, and tech accessories. All items are verified and seamlessly fulfilled through our trusted e-commerce platform, <strong>Kabale Online</strong>.
                 </p>
               </div>
-              
+
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
                 {deals.map(deal => (
                   <a 
                     key={deal.id} 
-                    href={deal.url || "#"} 
+                    href={deal.dealUrl || "#"} // Fixed database field mapping
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="group bg-white border border-slate-200 overflow-hidden flex flex-col hover:border-blue-300 hover:shadow-md transition-all duration-300"
@@ -187,7 +187,7 @@ export default async function HomePage() {
                         {deal.title}
                       </h3>
                       <p className="text-blue-700 font-black text-sm mt-auto pt-2">
-                        UGX {deal.price}
+                        UGX {Number(deal.price).toLocaleString()}
                       </p>
                     </div>
                   </a>
@@ -204,6 +204,7 @@ export default async function HomePage() {
           )}
 
           <hr className="border-slate-200 my-10" />
+
 
 
           {/* Latest Articles */}
