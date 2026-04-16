@@ -168,14 +168,14 @@ export default async function SinglePostPage({ params }: { params: { slug: strin
         )}
 
         {/* Content - FIXED WITH BETTER HEADINGS AND SPACING */}
-<div className="prose prose-lg prose-blue max-w-none mb-10 
+<div className="prose prose-lg max-w-none mb-10 
   text-slate-800 leading-relaxed
-  prose-headings:font-black prose-headings:text-slate-900 prose-headings:tracking-tight
-  prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4
-  prose-p:mb-6
-  prose-strong:text-slate-900 prose-strong:font-bold
-  prose-img:rounded-none
-  prose-a:text-blue-600 prose-a:font-bold hover:prose-a:underline
+  prose-headings:text-brand-dark prose-headings:font-black prose-headings:tracking-tight
+  prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-4 prose-h2:border-l-4 prose-h2:border-blue-600 prose-h2:pl-4
+  prose-p:mb-6 prose-p:text-slate-700
+  prose-strong:text-brand-dark prose-strong:font-extrabold
+  prose-img:rounded-none prose-img:border prose-img:border-slate-200
+  prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline prose-a:font-bold
 ">
   <ReactMarkdown 
     remarkPlugins={[remarkGfm]} 
@@ -184,6 +184,7 @@ export default async function SinglePostPage({ params }: { params: { slug: strin
     {post.content}
   </ReactMarkdown>
 </div>
+
 
 
         {/* Tags Section */}
