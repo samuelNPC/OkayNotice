@@ -17,6 +17,13 @@ const serializeDoc = (doc: any) => {
   };
 };
 
+// Helper to format the upload date beautifully (e.g. "Apr 16, 2026")
+const formatDate = (isoString: string | null) => {
+  if (!isoString) return "";
+  const d = new Date(isoString);
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+};
+
 export default async function HomePage() {
   try {
     const postsRef = collection(db, "posts");
@@ -27,7 +34,7 @@ export default async function HomePage() {
     const featuredQuery = query(postsRef, where("isFeatured", "==", true), limit(6));
     const featuredSnapshot = await getDocs(featuredQuery);
     const featuredPosts = featuredSnapshot.docs.map(serializeDoc);
-    
+
     const displayFeatured = featuredPosts.length > 0 ? featuredPosts : latestPosts.slice(0, 6);
 
     const dealsRef = collection(db, "deals");
@@ -40,7 +47,7 @@ export default async function HomePage() {
     return (
       <div className="bg-white min-h-screen text-slate-900 pb-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-8 md:pt-10">
-          
+
           {/* Mobile Hero */}
           <section className="mb-8 md:hidden flex flex-col items-center text-center">
             <h1 className="text-3xl font-black text-slate-900 mb-8 tracking-tight leading-tight">
@@ -103,7 +110,12 @@ export default async function HomePage() {
                   href={`/blog/${post.slug}`}
                   className="group bg-white border border-slate-200 flex flex-col hover:border-blue-300 transition-colors"
                 >
-                  <div className="h-48 w-full overflow-hidden">
+                  <div className="h-48 w-full overflow-hidden relative">
+                    {post.category && (
+                      <span className="absolute top-4 left-4 z-10 bg-blue-600 text-white text-xs font-bold px-3 py-1 uppercase tracking-wider">
+                        {post.category}
+                      </span>
+                    )}
                     <img 
                       src={post.coverImage || "/api/placeholder/400/300"} 
                       alt={post.title} 
@@ -114,14 +126,19 @@ export default async function HomePage() {
                     <h3 className="font-bold text-slate-900 text-lg leading-snug line-clamp-2 mb-4">{post.title}</h3>
                     <div className="flex items-center justify-between mt-auto pt-4 border-t border-slate-100">
                       <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-slate-200 overflow-hidden border border-slate-300">
+                        <div className="w-10 h-10 bg-slate-200 overflow-hidden border border-slate-200">
                           <img 
                             src={post.authorImage || defaultAvatar} 
                             alt="Author" 
                             className="w-full h-full object-cover" 
                           />
                         </div>
-                        <span className="text-sm text-slate-600 font-medium">{post.author || "OkayNotice"}</span>
+                        <div className="flex flex-col">
+                          <span className="text-sm text-slate-900 font-bold">{post.author || "OkayNotice"}</span>
+                          <span className="text-xs text-slate-500 font-medium">
+                            {formatDate(post.createdAt)} {post.readTime && `• ${post.readTime}`}
+                          </span>
+                        </div>
                       </div>
                       <Bookmark size={18} className="text-slate-400 group-hover:text-blue-600 transition-colors" />
                     </div>
@@ -158,7 +175,7 @@ export default async function HomePage() {
 
           <hr className="border-slate-200 my-10" />
 
-                    {/* Latest Articles */}
+          {/* Latest Articles */}
           <section>
             <h2 className="text-xl md:text-2xl font-black text-slate-800 mb-6">Latest Articles</h2>
 
@@ -174,13 +191,28 @@ export default async function HomePage() {
                         className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
                       />
                     </div>
-                    <div className="flex flex-col">
+                    <div className="flex flex-col w-full">
+                      <div className="flex items-center gap-2 mb-1">
+                        {post.category && (
+                          <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider bg-blue-50 px-2 py-0.5">
+                            {post.category}
+                          </span>
+                        )}
+                        {post.tags && post.tags.length > 0 && (
+                          <span className="text-[10px] text-slate-400 font-medium">#{post.tags[0]}</span>
+                        )}
+                      </div>
                       <h3 className="text-base font-bold text-blue-700 leading-snug group-hover:text-blue-900 transition-colors mb-1 line-clamp-2">
                         {post.title}
                       </h3>
-                      <p className="text-sm text-slate-500 line-clamp-2">
+                      <p className="text-sm text-slate-500 line-clamp-2 mb-2">
                         {post.excerpt}
                       </p>
+                      <div className="mt-auto text-xs text-slate-400 font-medium flex items-center">
+                        <span>{formatDate(post.createdAt)}</span>
+                        {post.readTime && <span className="mx-1.5">•</span>}
+                        {post.readTime && <span>{post.readTime}</span>}
+                      </div>
                     </div>
                   </Link>
                   {index !== latestPosts.length - 1 && (
@@ -207,7 +239,7 @@ export default async function HomePage() {
                     href={`/blog/${post.slug}`} 
                     className="group flex flex-col bg-white border border-slate-200 hover:border-blue-300 transition-all"
                   >
-                    <div className="aspect-[4/3] w-full overflow-hidden border-b border-slate-100">
+                    <div className="aspect-[4/3] w-full overflow-hidden border-b border-slate-100 relative">
                       <img 
                         src={post.coverImage || "/api/placeholder/150/150"} 
                         alt={post.title} 
@@ -215,25 +247,41 @@ export default async function HomePage() {
                       />
                     </div>
                     <div className="p-5 flex flex-col flex-grow">
+                      <div className="flex items-center gap-2 mb-3">
+                        {post.category && (
+                          <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wider bg-blue-50 px-2 py-1">
+                            {post.category}
+                          </span>
+                        )}
+                        {post.tags && post.tags.length > 0 && (
+                          <span className="text-xs text-slate-400 font-medium hover:text-slate-600 transition-colors">
+                            #{post.tags[0]}
+                          </span>
+                        )}
+                      </div>
                       <h3 className="text-lg font-bold text-blue-700 leading-snug group-hover:text-blue-900 transition-colors mb-2 line-clamp-2">
                         {post.title}
                       </h3>
                       <p className="text-sm text-slate-500 line-clamp-2">
                         {post.excerpt}
                       </p>
+                      <div className="mt-auto pt-4 flex items-center text-xs text-slate-400 font-medium">
+                        <span>{formatDate(post.createdAt)}</span>
+                        {post.readTime && <span className="mx-2">•</span>}
+                        {post.readTime && <span>{post.readTime}</span>}
+                      </div>
                     </div>
                   </Link>
                 ))}
               </div>
               <Link 
                 href="/blog" 
-                className="flex items-center justify-center w-full py-4 bg-slate-900 text-white font-bold transition-colors"
+                className="flex items-center justify-center w-full py-4 bg-slate-900 text-white font-bold transition-colors hover:bg-slate-800"
               >
                 View All Blogs &rarr;
               </Link>
             </div>
           </section>
-
 
           {/* NEWSLETTER */}
           <NewsletterForm />
