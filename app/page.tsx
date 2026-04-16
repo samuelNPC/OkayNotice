@@ -150,30 +150,61 @@ export default async function HomePage() {
 
           <hr className="border-slate-200 my-10" />
 
-          {/* Hand Picked Deals */}
+                    {/* Hand Picked Deals */}
           {deals.length > 0 && (
             <section>
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl md:text-2xl font-black text-slate-800">Hand picked deals</h2>
-                <Link href="/deals" className="text-sm text-blue-600 font-bold hover:underline">View All</Link>
+              <div className="flex flex-col mb-8">
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="text-2xl md:text-3xl font-black text-slate-900">Hand Picked Deals</h2>
+                  <Link href="/deals" className="hidden md:block text-sm bg-blue-50 text-blue-700 px-4 py-2 rounded-lg font-bold hover:bg-blue-100 transition-colors">
+                    View All Deals &rarr;
+                  </Link>
+                </div>
+                {/* Section Description */}
+                <p className="text-slate-600 max-w-3xl leading-relaxed">
+                  Looking for an upgrade? We scour the market to bring you the best discounts on smartphones, laptops, and tech accessories. All items are verified and seamlessly fulfilled through our trusted e-commerce platform, <strong>Kabale Online</strong>.
+                </p>
               </div>
+              
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
                 {deals.map(deal => (
-                  <div key={deal.id} className="bg-white border border-slate-200 overflow-hidden flex flex-col hover:border-blue-300 transition-colors">
-                    <div className="aspect-square relative">
-                      <img src={deal.image} alt={deal.title} className="absolute inset-0 w-full h-full object-cover" />
+                  <a 
+                    key={deal.id} 
+                    href={deal.url || "#"} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="group bg-white border border-slate-200 overflow-hidden flex flex-col hover:border-blue-300 hover:shadow-md transition-all duration-300"
+                  >
+                    <div className="aspect-square relative overflow-hidden bg-slate-50">
+                      <img 
+                        src={deal.image} 
+                        alt={deal.title} 
+                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                      />
                     </div>
                     <div className="p-4 flex flex-col flex-grow border-t border-slate-100">
-                      <h3 className="text-sm font-bold text-slate-900 line-clamp-2 mb-2">{deal.title}</h3>
-                      <p className="text-blue-700 font-black text-sm mt-auto">UGX {deal.price}</p>
+                      <h3 className="text-sm font-bold text-slate-900 line-clamp-2 mb-1 group-hover:text-blue-700 transition-colors">
+                        {deal.title}
+                      </h3>
+                      <p className="text-blue-700 font-black text-sm mt-auto pt-2">
+                        UGX {deal.price}
+                      </p>
                     </div>
-                  </div>
+                  </a>
                 ))}
+              </div>
+
+              {/* Mobile View All Button */}
+              <div className="mt-6 md:hidden">
+                <Link href="/deals" className="flex items-center justify-center w-full py-3 bg-slate-100 text-slate-800 font-bold rounded-lg hover:bg-slate-200 transition-colors">
+                  View All Deals &rarr;
+                </Link>
               </div>
             </section>
           )}
 
           <hr className="border-slate-200 my-10" />
+
 
           {/* Latest Articles */}
           <section>
