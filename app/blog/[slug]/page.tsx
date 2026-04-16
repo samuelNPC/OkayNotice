@@ -37,15 +37,50 @@ async function getRelatedPosts(category: string, currentPostId: string) {
     .slice(0, 3); // Return only 3 related posts
 }
 
+// 🚀 FULLY DYNAMIC SEO & OPEN GRAPH
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const post = await getPost(params.slug);
-  if (!post) return { title: "Post Not Found" };
+  
+  if (!post) {
+    return {
+      title: "Post Not Found | OkayNotice",
+      description: "The article you are looking for does not exist.",
+    };
+  }
+
+  const postUrl = `https://okaynotice.com/blog/${post.slug}`;
+  const ogImage = post.coverImage || "https://okaynotice.com/og-image.jpg";
+  const publishedDate = post.createdAt ? new Date(post.createdAt).toISOString() : new Date().toISOString();
 
   return {
     title: post.title,
     description: post.excerpt,
+    authors: [{ name: post.author || "OkayNotice" }],
+    alternates: {
+      canonical: postUrl,
+    },
     openGraph: {
-      images: post.coverImage ? [post.coverImage] : [],
+      title: post.title,
+      description: post.excerpt,
+      url: postUrl,
+      siteName: "OkayNotice",
+      type: "article",
+      publishedTime: publishedDate,
+      authors: [post.author || "OkayNotice"],
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: post.title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: post.excerpt,
+      images: [ogImage],
     },
   };
 }
