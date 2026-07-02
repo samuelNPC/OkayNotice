@@ -4,7 +4,7 @@ import { db } from "@/lib/firebase";
 import NewsletterForm from "@/components/home/NewsletterForm";
 import FeaturedCarousel from "@/components/home/FeaturedCarousel";
 import MoreButton from "@/components/home/MoreButton";
-import WelcomeGreeting from "@/components/home/WelcomeGreeting"; // IMPORTED HERE
+import WelcomeGreeting from "@/components/home/WelcomeGreeting";
 import { FileText, Wrench, ShoppingBag, AlertCircle, Bookmark, Tag } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -61,11 +61,6 @@ export default async function HomePage() {
     const featuredPosts = featuredSnapshot.docs.map(serializeDoc);
 
     const displayFeatured = featuredPosts.length > 0 ? featuredPosts : latestPosts.slice(0, 6);
-
-    const dealsRef = collection(db, "deals");
-    const dealsQuery = query(dealsRef, orderBy("createdAt", "desc"), limit(4));
-    const dealsSnapshot = await getDocs(dealsQuery);
-    const deals = dealsSnapshot.docs.map(serializeDoc);
 
     const defaultAvatar = "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg";
 
@@ -246,66 +241,7 @@ export default async function HomePage() {
 
           <hr className="border-slate-200/50 my-10" />
 
-          {/* 4. HAND PICKED DEALS - UPGRADED HEADER */}
-          {deals.length > 0 && (
-            <section>
-              <div className="flex flex-col mb-8 bg-gradient-to-r from-blue-50/60 to-transparent p-6 rounded-2xl border-l-4 border-blue-600 shadow-sm backdrop-blur-sm">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center space-x-3">
-                    <div className="bg-blue-100 text-blue-600 p-2 rounded-lg hidden sm:block">
-                      <ShoppingBag size={24} />
-                    </div>
-                    <h2 className="text-2xl md:text-3xl font-black text-slate-900">Hand Picked Deals</h2>
-                  </div>
-                  <Link href="/deals" className="hidden md:block text-sm bg-white/80 text-blue-700 px-4 py-2 rounded-lg font-bold hover:bg-white transition-colors border border-blue-100 shadow-sm">
-                    View All Deals &rarr;
-                  </Link>
-                </div>
-                <p className="text-slate-600 max-w-3xl leading-relaxed text-sm sm:text-base font-medium">
-                  Looking for an upgrade? We scour the market to bring you the best discounts on smartphones, laptops, and tech accessories. All items are verified and seamlessly fulfilled through our trusted e-commerce platform, <strong className="text-blue-700">Kabale Online</strong>.
-                </p>
-              </div>
-
-              {/* Product cards left exactly as they were */}
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
-                {deals.map(deal => (
-                  <a 
-                    key={deal.id} 
-                    href={deal.dealUrl || "#"} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="group bg-white/80 backdrop-blur-md border border-white/60 rounded-xl overflow-hidden flex flex-col hover:border-blue-300 hover:shadow-md transition-all duration-300"
-                  >
-                    <div className="aspect-square relative overflow-hidden bg-slate-50/50">
-                      <img 
-                        src={deal.image} 
-                        alt={deal.title} 
-                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                      />
-                    </div>
-                    <div className="p-4 flex flex-col flex-grow border-t border-slate-100/50">
-                      <h3 className="text-sm font-bold text-slate-900 line-clamp-2 mb-1 group-hover:text-blue-700 transition-colors">
-                        {deal.title}
-                      </h3>
-                      <p className="text-blue-700 font-black text-sm mt-auto pt-2">
-                        UGX {Number(deal.price).toLocaleString()}
-                      </p>
-                    </div>
-                  </a>
-                ))}
-              </div>
-
-              <div className="mt-6 md:hidden">
-                <Link href="/deals" className="flex items-center justify-center w-full py-3 bg-white/80 backdrop-blur-md border border-slate-200 text-slate-800 font-bold rounded-xl hover:bg-slate-50 transition-colors">
-                  View All Deals &rarr;
-                </Link>
-              </div>
-            </section>
-          )}
-
-          <hr className="border-slate-200/50 my-10" />
-
-          {/* 5. LATEST ARTICLES */}
+          {/* 4. LATEST ARTICLES */}
           <section>
             <h2 className="text-xl md:text-2xl font-black text-slate-800 mb-6">Latest Articles</h2>
 
@@ -353,72 +289,16 @@ export default async function HomePage() {
                 </Link>
               </div>
             </div>
-
-            {/* Desktop Latest Articles */}
-            <div className="hidden md:block">
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                {latestPosts.map((post) => (
-                  <Link 
-                    key={post.id} 
-                    href={`/blog/${post.slug}`} 
-                    className="group flex flex-col bg-white/80 backdrop-blur-md border border-white/60 rounded-2xl overflow-hidden hover:border-blue-300 hover:shadow-lg transition-all duration-300"
-                  >
-                    <div className="aspect-[4/3] w-full overflow-hidden border-b border-slate-100/50 relative">
-                      <img 
-                        src={post.coverImage || "/api/placeholder/150/150"} 
-                        alt={post.title} 
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
-                      />
-                    </div>
-                    <div className="p-5 flex flex-col flex-grow">
-                      <div className="flex items-center gap-2 mb-3">
-                        {post.category && (
-                          <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wider bg-blue-50/80 px-2 py-1 rounded-sm">
-                            {post.category}
-                          </span>
-                        )}
-                        {post.tags && post.tags.length > 0 && (
-                          <span className="text-xs text-slate-400 font-medium hover:text-slate-600 transition-colors">
-                            #{post.tags[0]}
-                          </span>
-                        )}
-                      </div>
-                      <h3 className="text-lg font-bold text-slate-900 leading-snug group-hover:text-blue-700 transition-colors mb-2 line-clamp-2">
-                        {post.title}
-                      </h3>
-                      <p className="text-sm text-slate-500 line-clamp-2">
-                        {post.excerpt}
-                      </p>
-                      <div className="mt-auto pt-4 flex items-center text-xs text-slate-400 font-medium">
-                        <span>{formatDate(post.createdAt)}</span>
-                        {post.readTime && <span className="mx-2">•</span>}
-                        {post.readTime && <span>{post.readTime}</span>}
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-              <Link 
-                href="/blog" 
-                className="flex items-center justify-center w-full py-4 bg-slate-900 text-white font-bold rounded-2xl shadow-md transition-colors hover:bg-slate-800"
-              >
-                View All Blogs &rarr;
-              </Link>
-            </div>
           </section>
-
-          <NewsletterForm />
-
         </div>
       </div>
     );
   } catch (error) {
+    console.error("Error loading homepage data:", error);
     return (
-      <div className="min-h-[50vh] flex flex-col items-center justify-center text-slate-500 space-y-4 relative z-10">
-        <AlertCircle size={40} className="text-red-500" />
-        <p className="text-lg font-medium">Unable to load homepage content.</p>
-        <p className="text-sm">Please refresh the page or check your database connection.</p>
+      <div className="w-full min-h-screen flex items-center justify-center text-slate-800">
+        <p>Something went wrong loading the homepage.</p>
       </div>
     );
   }
-}
+                  }
