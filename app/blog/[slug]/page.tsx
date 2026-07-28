@@ -72,7 +72,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
       siteName: "Etomu News",
       type: "article",
       publishedTime: publishedDate,
-      authors: [post.author || "OkayNotice"],
+      authors: [post.author || "EtomuNews"],
       images: [
         {
           url: ogImage,
