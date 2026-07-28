@@ -44,8 +44,8 @@ export default function Navbar() {
 
             {/* 1. Text Logo */}
             <Link href="/" className="text-2xl font-black tracking-tight relative z-50">
-              <span className="text-slate-900">Okay</span>
-              <span className="text-blue-600">Notice</span>
+              <span className="text-slate-900">Etomu</span>
+              <span className="text-blue-600">News</span>
             </Link>
 
             {/* 2. Desktop Navigation */}
