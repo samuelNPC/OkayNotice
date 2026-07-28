@@ -107,7 +107,7 @@ export default async function HomePage() {
                           />
                         </div>
                         <div className="flex flex-col">
-                          <span className="text-sm text-slate-900 font-bold">{post.author || "OkayNotice"}</span>
+                          <span className="text-sm text-slate-900 font-bold">{post.author || "EtomuNews"}</span>
                           <span className="text-xs text-slate-500 font-medium">
                             {formatDate(post.createdAt)} {post.readTime && `• ${post.readTime}`}
                           </span>
