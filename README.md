@@ -1,2 +1,2 @@
 # OkayNotice
-Okay Notice blog
+Etomu News
