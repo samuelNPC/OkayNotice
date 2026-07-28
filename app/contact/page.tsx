@@ -20,7 +20,7 @@ export default function ContactPage() {
         {/* Founder & Kabale Online Banner */}
         <div className="inline-flex flex-col sm:flex-row items-center justify-center bg-white/70 backdrop-blur-md border border-slate-200/60 px-6 py-4 rounded-2xl shadow-sm">
           <span className="text-sm font-medium text-slate-600">
-            <strong className="text-blue-700 font-black">OkayNotice</strong> is a proud product of <strong className="text-slate-900">Kabale Online</strong>
+            <strong className="text-blue-700 font-black">Etomu News</strong> is a proud product of <strong className="text-slate-900">Etomu Holdings</strong>
           </span>
           <span className="hidden sm:inline-block mx-3 text-slate-300">|</span>
           <span className="text-sm font-medium text-slate-600 mt-2 sm:mt-0">
@@ -38,7 +38,7 @@ export default function ContactPage() {
           </div>
           <h3 className="text-xl font-black text-slate-900 mb-2">Email Us</h3>
           <p className="text-slate-600 font-medium">
-            info@okaynotice.com
+            hello@etomu.com
           </p>
         </div>
 
@@ -61,7 +61,7 @@ export default function ContactPage() {
           </div>
           <h3 className="text-xl font-black text-slate-900 mb-2">Headquarters</h3>
           <p className="text-slate-600 font-medium">
-            Kabale Online Offices<br />
+            Etomu Head Offices<br />
             Kabale, Uganda
           </p>
         </div>
