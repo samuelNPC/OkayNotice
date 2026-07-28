@@ -1,2 +1,1 @@
-# OkayNotice
-Etomu News
+# Etomu News
