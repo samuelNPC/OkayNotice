@@ -16,7 +16,7 @@ export default function PrivacyPage() {
 
           <h2 className="text-xl font-bold text-slate-900 mt-6 mb-2">1. Introduction</h2>
           <p>
-            Welcome to OkayNotice. We respect your privacy and are committed to protecting your personal data. This Privacy Policy explains how we handle your data when you visit our website.
+            Welcome to Etomu News. We respect your privacy and are committed to protecting your personal data. This Privacy Policy explains how we handle your data when you visit our website.
           </p>
 
           <h2 className="text-xl font-bold text-slate-900 mt-6 mb-2">2. Information We Collect</h2>
@@ -39,7 +39,7 @@ export default function PrivacyPage() {
 
           <h2 className="text-xl font-bold text-slate-900 mt-6 mb-2">4. External Links</h2>
           <p>
-            Our website contains links to external sites, primarily Kabale Online for product deals. We are not responsible for the privacy practices or the content of such Web sites.
+            Our website contains links to external sites, primarily Etomu for product deals. We are not responsible for the privacy practices or the content of such Web sites.
           </p>
 
           <h2 className="text-xl font-bold text-slate-900 mt-6 mb-2">5. Contact Us</h2>
