@@ -3,7 +3,7 @@ import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 // Define your base URL
-const BASE_URL = "https://okaynotice.com";
+const BASE_URL = "https://news.etomu.com";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // 1. Define your Static Routes
