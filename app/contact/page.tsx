@@ -3,7 +3,7 @@ import { Mail, MapPin, Phone } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Contact Us",
-  description: "Get in touch with the OkayNotice team for inquiries, partnerships, or support.",
+  description: "Get in touch with the Etomu team for inquiries, partnerships, or support.",
 };
 
 export default function ContactPage() {
