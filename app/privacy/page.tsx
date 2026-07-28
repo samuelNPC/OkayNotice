@@ -2,7 +2,7 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
-  description: "Privacy Policy and Terms of Service for OkayNotice.",
+  description: "Privacy Policy and Terms of Service for Etomu News.",
 };
 
 export default function PrivacyPage() {
