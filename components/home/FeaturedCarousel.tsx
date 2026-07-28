@@ -54,7 +54,7 @@ export default function FeaturedCarousel({ posts }: { posts: Post[] }) {
           ------------------------------------------------------------------ */}
       <div className="md:hidden">
         <div className="flex items-center justify-between mb-4 px-1">
-          <h2 className="text-2xl font-black text-slate-800">Featured</h2>
+          
         </div>
 
         <div 
@@ -102,7 +102,7 @@ export default function FeaturedCarousel({ posts }: { posts: Post[] }) {
           DESKTOP VIEW: The Magazine "Bento Box" Layout
           ------------------------------------------------------------------ */}
       <div className="hidden md:block">
-        <h2 className="text-3xl font-black text-slate-800 mb-6">Featured Stories</h2>
+        
         
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[500px]">
           
