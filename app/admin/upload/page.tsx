@@ -233,7 +233,7 @@ function EditorForm() {
               <label className="block text-sm font-bold text-slate-700 mb-2">URL Slug</label>
               <div className="flex bg-slate-50 border border-slate-200 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-blue-600">
                 <span className="px-4 py-3 text-slate-500 bg-slate-100 border-r border-slate-200 select-none">
-                  okaynotice.com/blog/
+                  news.etomu.com/blog/
                 </span>
                 <input
                   type="text"
