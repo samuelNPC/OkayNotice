@@ -18,7 +18,7 @@ export default function Footer() {
             <li className="flex items-start">
               <Mail size={18} className="text-blue-600 mr-3 mt-0.5 shrink-0" />
               <a href="mailto:info@okaynotice.com" className="hover:text-blue-600 transition-colors">
-                info@okaynotice.com
+                hello@etomu.com
               </a>
             </li>
             <li className="flex items-start">
@@ -30,7 +30,7 @@ export default function Footer() {
 
         {/* Copyright Section */}
         <div className="pt-6 border-t border-slate-200/60 text-sm font-medium text-slate-500 text-center">
-          <p>&copy; {currentYear} OkayNotice. All rights reserved.</p>
+          <p>&copy; {currentYear} Etomu News. All rights reserved.</p>
         </div>
 
       </div>
