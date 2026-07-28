@@ -45,13 +45,13 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 
   if (!post) {
     return {
-      title: "Post Not Found | OkayNotice",
+      title: "Post Not Found | Etomu News",
       description: "The article you are looking for does not exist.",
     };
   }
 
-  const postUrl = `https://okaynotice.com/blog/${post.slug}`;
-  const ogImage = post.coverImage || "https://okaynotice.com/og-image.jpg";
+  const postUrl = `https://news.etomu.com/blog/${post.slug}`;
+  const ogImage = post.coverImage || "https://news.etomu.com/og-image.jpg";
   const publishedDate = post.createdAt ? new Date(post.createdAt).toISOString() : new Date().toISOString();
 
   // Prefer custom SEO meta fields, fallback to standard title/excerpt
@@ -61,7 +61,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   return {
     title: displayTitle,
     description: displayDescription,
-    authors: [{ name: post.author || "OkayNotice" }],
+    authors: [{ name: post.author || "EtomuNews" }],
     alternates: {
       canonical: postUrl,
     },
@@ -69,7 +69,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
       title: displayTitle,
       description: displayDescription,
       url: postUrl,
-      siteName: "OkayNotice",
+      siteName: "Etomu News",
       type: "article",
       publishedTime: publishedDate,
       authors: [post.author || "OkayNotice"],
