@@ -3,10 +3,10 @@ import ProfitCalculator from "@/components/tools/ProfitCalculator";
 import { TrendingUp, ShieldCheck, Zap } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "E-commerce Profit Calculator | OkayNotice Tools",
+  title: "E-commerce Profit Calculator | EtomuTools",
   description: "Calculate your net profit, margins, and markups for your products. Perfect for Kabale Online vendors and Ugandan entrepreneurs.",
   openGraph: {
-    title: "E-commerce Profit Calculator | OkayNotice",
+    title: "E-commerce Profit Calculator | Etomu News",
     description: "Free tool to calculate Ugandan business profits including shipping and marketing costs.",
     type: "website",
   }
