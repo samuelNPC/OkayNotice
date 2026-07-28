@@ -8,7 +8,7 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Latest Tech & Finance News",
-  description: "Read the latest updates on Uganda tech, finance, mobile money, and gadget reviews on OkayNotice.",
+  description: "Read the latest updates on Uganda tech, finance, mobile money, and gadget reviews on Etomu News.",
 };
 
 export const revalidate = 60;
@@ -66,7 +66,7 @@ export default async function BlogPage({
         {/* UPGRADED HERO SECTION */}
         <section className="border-b border-slate-200 pb-10 mb-10">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight mb-4">
-            The OkayNotice <span className="text-blue-700">Blog</span>
+            The Etomu News <span className="text-blue-700">Blog</span>
           </h1>
           <p className="text-lg md:text-xl text-slate-600 max-w-3xl">
             Deep dives, practical guides, and the latest updates on finance, technology trends, and gadget deals in Uganda.
