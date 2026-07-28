@@ -36,7 +36,7 @@ export default function AdminLogin() {
   return (
     <div className="max-w-md mx-auto mt-20 p-6 bg-white rounded-2xl shadow-sm border border-slate-200">
       <div className="text-center mb-8">
-        <h1 className="text-2xl font-bold text-slate-900">OkayNotice Admin</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Etomu News Admin</h1>
         <p className="text-slate-500 text-sm">Sign in to manage your platform</p>
       </div>
 
