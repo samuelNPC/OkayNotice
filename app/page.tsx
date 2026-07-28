@@ -4,7 +4,6 @@ import { db } from "@/lib/firebase";
 import NewsletterForm from "@/components/home/NewsletterForm";
 import FeaturedCarousel from "@/components/home/FeaturedCarousel";
 import MoreButton from "@/components/home/MoreButton";
-import WelcomeGreeting from "@/components/home/WelcomeGreeting";
 import { FileText, Wrench, ShoppingBag, AlertCircle, Bookmark, Tag } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -68,8 +67,7 @@ export default async function HomePage() {
       <div className="w-full min-h-screen text-slate-900 pb-20 relative z-10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-6 md:pt-8">
 
-          {/* 0. THE SMART GREETING */}
-          <WelcomeGreeting />
+          
 
           {/* 1. FEATURED STORIES */}
           <section className="md:hidden">
@@ -153,91 +151,7 @@ export default async function HomePage() {
 
           <hr className="border-slate-200/50 my-10" />
 
-          {/* 3. EXPLORE SECTION */}
-          <section className="mb-10 md:hidden flex flex-col items-center text-center">
-            <h2 className="text-3xl font-black text-slate-900 mb-8 tracking-tight leading-tight">
-              Explore <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-400">
-                OkayNotice
-              </span>
-            </h2>
-            <div className="grid grid-cols-2 gap-4 w-full">
-              <Link href="/blog" className="group relative flex flex-col items-center justify-center bg-white/80 backdrop-blur-md border border-white/60 rounded-2xl py-6 overflow-hidden transition-all active:scale-95 shadow-sm hover:shadow-md hover:border-orange-300">
-                <div className="absolute inset-0 bg-gradient-to-b from-orange-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="relative z-10 flex flex-col items-center">
-                  <div className="w-12 h-12 bg-orange-50 text-orange-500 rounded-full flex items-center justify-center mb-3 group-hover:-translate-y-1 transition-transform">
-                    <FileText size={24} />
-                  </div>
-                  <span className="font-bold text-slate-800">Blog</span>
-                </div>
-              </Link>
-
-              <Link href="/tools" className="group relative flex flex-col items-center justify-center bg-white/80 backdrop-blur-md border border-white/60 rounded-2xl py-6 overflow-hidden transition-all active:scale-95 shadow-sm hover:shadow-md hover:border-pink-300">
-                <div className="absolute inset-0 bg-gradient-to-b from-pink-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="relative z-10 flex flex-col items-center">
-                  <div className="w-12 h-12 bg-pink-50 text-pink-500 rounded-full flex items-center justify-center mb-3 group-hover:-translate-y-1 transition-transform">
-                    <Wrench size={24} />
-                  </div>
-                  <span className="font-bold text-slate-800">Tools</span>
-                </div>
-              </Link>
-
-              <Link href="/deals" className="group relative flex flex-col items-center justify-center bg-white/80 backdrop-blur-md border border-white/60 rounded-2xl py-6 overflow-hidden transition-all active:scale-95 shadow-sm hover:shadow-md hover:border-green-300">
-                <div className="absolute inset-0 bg-gradient-to-b from-green-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="relative z-10 flex flex-col items-center">
-                  <div className="w-12 h-12 bg-green-50 text-green-500 rounded-full flex items-center justify-center mb-3 group-hover:-translate-y-1 transition-transform">
-                    <ShoppingBag size={24} />
-                  </div>
-                  <span className="font-bold text-slate-800">Deals</span>
-                </div>
-              </Link>
-
-              <div className="group relative flex flex-col items-center justify-center bg-slate-50/80 backdrop-blur-md border border-white/60 rounded-2xl py-6 overflow-hidden transition-all active:scale-95 shadow-sm hover:shadow-md hover:border-slate-300">
-                 <MoreButton />
-              </div>
-            </div>
-          </section>
-
-          <section className="hidden md:flex mb-16 flex-col items-center text-center w-full">
-            <h2 className="text-4xl lg:text-5xl font-black text-slate-900 tracking-tight mb-12">
-              Explore <br className="hidden lg:block" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-400">
-                OkayNotice
-              </span>
-            </h2>
-
-            <div className="grid grid-cols-3 gap-6 w-full">
-              <Link href="/blog" className="group relative bg-white/80 backdrop-blur-xl border border-white/60 rounded-3xl p-8 hover:border-orange-300 hover:shadow-2xl hover:shadow-orange-100/50 transition-all duration-500 hover:-translate-y-2 overflow-hidden flex flex-col items-center justify-center text-center">
-                <div className="absolute inset-0 bg-gradient-to-br from-orange-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="relative z-10">
-                  <div className="w-20 h-20 bg-orange-50 text-orange-500 rounded-2xl flex items-center justify-center mb-4 mx-auto group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500">
-                    <FileText size={40} />
-                  </div>
-                  <h3 className="font-black text-2xl text-slate-900">Blog</h3>
-                </div>
-              </Link>
-
-              <Link href="/tools" className="group relative bg-white/80 backdrop-blur-xl border border-white/60 rounded-3xl p-8 hover:border-pink-300 hover:shadow-2xl hover:shadow-pink-100/50 transition-all duration-500 hover:-translate-y-2 overflow-hidden flex flex-col items-center justify-center text-center mt-4 lg:mt-8">
-                <div className="absolute inset-0 bg-gradient-to-br from-pink-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="relative z-10">
-                  <div className="w-20 h-20 bg-pink-50 text-pink-500 rounded-2xl flex items-center justify-center mb-4 mx-auto group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-500">
-                    <Wrench size={40} />
-                  </div>
-                  <h3 className="font-black text-2xl text-slate-900">Tools</h3>
-                </div>
-              </Link>
-
-              <Link href="/deals" className="group relative bg-white/80 backdrop-blur-xl border border-white/60 rounded-3xl p-8 hover:border-green-300 hover:shadow-2xl hover:shadow-green-100/50 transition-all duration-500 hover:-translate-y-2 overflow-hidden flex flex-col items-center justify-center text-center">
-                <div className="absolute inset-0 bg-gradient-to-br from-green-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="relative z-10">
-                  <div className="w-20 h-20 bg-green-50 text-green-500 rounded-2xl flex items-center justify-center mb-4 mx-auto group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500">
-                    <ShoppingBag size={40} />
-                  </div>
-                  <h3 className="font-black text-2xl text-slate-900">Deals</h3>
-                </div>
-              </Link>
-            </div>
-          </section>
+          
 
           <hr className="border-slate-200/50 my-10" />
 
