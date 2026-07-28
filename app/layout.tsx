@@ -10,41 +10,49 @@ import AmbientBackground from "@/components/home/AmbientBackground";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://okaynotice.com"),
+  metadataBase: new URL("https://news.etomu.com"),
   title: {
-    default: "OkayNotice | Smart Finance & Tech Tips for Uganda",
-    template: "%s | OkayNotice"
+    default: "Etomu News | Technology, Business & Innovation",
+    template: "%s | Etomu News",
   },
-  description: "Learn how to navigate digital payments, save money, and find the absolute best gadget deals in Uganda.",
+  description:
+    "Etomu News brings you the latest technology news, business insights, AI updates, programming tutorials, entrepreneurship tips, and digital trends from Uganda and beyond.",
   keywords: [
-    "Uganda tech news",
-    "financial tools Uganda",
-    "Kabale Online deals",
-    "MTN MoMo calculator",
-    "Airtel money charges",
-    "smartphone deals Uganda",
-    "business profit calculator"
+    "Etomu News",
+    "Uganda technology news",
+    "AI news",
+    "business news Uganda",
+    "technology Uganda",
+    "programming tutorials",
+    "web development",
+    "startups Uganda",
+    "entrepreneurship",
+    "digital innovation",
+    "Kabale technology",
+    "tech guides",
   ],
   openGraph: {
     type: "website",
     locale: "en_UG",
-    url: "https://okaynotice.com",
-    title: "OkayNotice | Smart Finance & Tech Tips for Uganda",
-    description: "Learn how to navigate digital payments, save money, and find the absolute best gadget deals in Uganda.",
-    siteName: "OkayNotice",
+    url: "https://news.etomu.com",
+    title: "Etomu News | Technology, Business & Innovation",
+    description:
+      "Stay informed with the latest technology, AI, business, programming, and innovation news from Uganda and around the world.",
+    siteName: "Etomu News",
     images: [
       {
-        url: "/og-image.jpg", 
+        url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "OkayNotice - Tech News & Financial Tools",
+        alt: "Etomu News - Technology, Business & Innovation",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "OkayNotice | Smart Finance & Tech Tips for Uganda",
-    description: "Learn how to navigate digital payments, save money, and find the absolute best gadget deals in Uganda.",
+    title: "Etomu News | Technology, Business & Innovation",
+    description:
+      "Stay informed with the latest technology, AI, business, programming, and innovation news from Uganda and around the world.",
     images: ["/og-image.jpg"],
   },
   robots: {
@@ -67,12 +75,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-slate-50 text-slate-900 flex flex-col min-h-screen relative`}>
-        
-        {/* The Global Ambient Background */}
+      <body
+        className={`${inter.className} bg-slate-50 text-slate-900 flex flex-col min-h-screen relative`}
+      >
         <AmbientBackground />
 
-        {/* WRAPPED APP IN AUTHPROVIDER */}
         <AuthProvider>
           <Navbar />
           <main className="flex-grow w-full relative z-10">
@@ -80,6 +87,7 @@ export default function RootLayout({
           </main>
           <Footer />
         </AuthProvider>
+
         <Analytics />
       </body>
     </html>
