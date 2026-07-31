@@ -55,7 +55,7 @@ export const metadata: Metadata = {
       {
         url: "/etomu-og.png", // Ensure this matches your actual file extension (.png or .jpg)
         width: 1200,
-        height: 630,
+        height: 1200,
         alt: "Etomu News - Technology, Business & Innovation",
       },
     ],
