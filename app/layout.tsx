@@ -31,6 +31,18 @@ export const metadata: Metadata = {
     "Kabale technology",
     "tech guides",
   ],
+  // NEW: Favicon configuration
+  icons: {
+    icon: [
+      { url: "/etomu-48.png", sizes: "48x48", type: "image/png" },
+      { url: "/etomu-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/etomu-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    // Optional but recommended: Apple Touch Icon for iOS devices
+    apple: [
+      { url: "/etomu-192.png", sizes: "192x192", type: "image/png" },
+    ],
+  },
   openGraph: {
     type: "website",
     locale: "en_UG",
@@ -41,7 +53,7 @@ export const metadata: Metadata = {
     siteName: "Etomu News",
     images: [
       {
-        url: "/og-image.jpg",
+        url: "/etomu-og.png", // Ensure this matches your actual file extension (.png or .jpg)
         width: 1200,
         height: 630,
         alt: "Etomu News - Technology, Business & Innovation",
@@ -53,7 +65,7 @@ export const metadata: Metadata = {
     title: "Etomu News | Technology, Business & Innovation",
     description:
       "Stay informed with the latest technology, AI, business, programming, and innovation news from Uganda and around the world.",
-    images: ["/og-image.jpg"],
+    images: ["/etomu-og.png"], // Ensure this matches your actual file extension
   },
   robots: {
     index: true,
