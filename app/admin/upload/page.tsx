@@ -158,7 +158,7 @@ function EditorForm() {
         metaDescription: metaDescription || excerpt,
         isFeatured,
         coverImage: finalImageUrl,
-        author: user?.displayName || "OkayNotice",
+        author: user?.displayName || "Etomu Reporter",
         authorEmail: user?.email,
         updatedAt: serverTimestamp(),
         published: true,
