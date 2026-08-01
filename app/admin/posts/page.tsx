@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, query, orderBy, onSnapshot, doc, deleteDoc, updateDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import { useAuth } from "@/components/context/AuthContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -17,30 +15,42 @@ export default function ManagePostsPage() {
   // Security Check
   useEffect(() => {
     if (!authLoading && !user) {
-      router.push("/admin/login");
+      router.push("/login"); // Pointing to your custom login page
     }
   }, [user, authLoading, router]);
 
-  // Fetch posts in real-time
-  useEffect(() => {
-    if (!user) return;
-    const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const postsData = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setPosts(postsData);
+  // Fetch posts from Cloudflare API
+  const fetchPosts = async () => {
+    try {
+      const res = await fetch("https://api.etomu.com/api/posts");
+      if (res.ok) {
+        const data = await res.json();
+        setPosts(data.posts);
+      }
+    } catch (error) {
+      console.error("Failed to fetch posts", error);
+    } finally {
       setLoading(false);
-    });
+    }
+  };
 
-    return () => unsubscribe();
+  useEffect(() => {
+    if (user) fetchPosts();
   }, [user]);
 
   const handleDelete = async (id: string) => {
     if (confirm("Are you sure you want to delete this post? This cannot be undone.")) {
       try {
-        await deleteDoc(doc(db, "posts", id));
+        const res = await fetch(`https://api.etomu.com/api/posts/${id}`, {
+          method: "DELETE",
+          credentials: "include", // Secures the admin request
+        });
+        
+        if (res.ok) {
+          setPosts(posts.filter(p => p.id !== id));
+        } else {
+          alert("Failed to delete post.");
+        }
       } catch (error) {
         alert("Failed to delete post.");
       }
@@ -49,15 +59,31 @@ export default function ManagePostsPage() {
 
   const toggleFeature = async (id: string, currentStatus: boolean) => {
     try {
-      await updateDoc(doc(db, "posts", id), {
-        isFeatured: !currentStatus,
+      // Optimistic UI update (feels faster to the user)
+      setPosts(posts.map(p => p.id === id ? { ...p, isFeatured: !currentStatus } : p));
+      
+      const res = await fetch(`https://api.etomu.com/api/posts/${id}/feature`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ isFeatured: !currentStatus })
       });
+
+      if (!res.ok) throw new Error("Failed to update status");
     } catch (error) {
       alert("Failed to update status.");
+      fetchPosts(); // Revert on failure
     }
   };
 
-  if (authLoading || !user) return <div className="p-10 text-center">Loading...</div>;
+  if (authLoading || !user) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center text-slate-500 space-y-4">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        <p>Verifying access...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-5xl mx-auto py-10 px-4">
@@ -86,7 +112,7 @@ export default function ManagePostsPage() {
                   <h3 className="text-lg font-bold text-slate-900 line-clamp-1">{post.title}</h3>
                   <p className="text-sm text-slate-500 mt-1">/{post.slug}</p>
                 </div>
-                
+
                 <div className="flex items-center space-x-2 w-full sm:w-auto justify-end">
                   <button 
                     onClick={() => toggleFeature(post.id, post.isFeatured)}
@@ -95,7 +121,7 @@ export default function ManagePostsPage() {
                   >
                     <Star size={18} className={post.isFeatured ? "fill-current" : ""} />
                   </button>
-                  
+
                   <Link 
                     href={`/admin/edit/${post.id}`}
                     className="p-2 bg-white border border-slate-200 text-blue-600 rounded-lg hover:bg-blue-50 transition"
