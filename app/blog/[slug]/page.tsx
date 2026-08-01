@@ -174,7 +174,7 @@ export default async function SinglePostPage({ params }: { params: { slug: strin
             {/* Optional: Small Caption or Image Source credit style */}
             <div className="mt-3 px-2 md:px-0">
               <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold">
-                Featured Visual • OkayNotice Tech
+                Featured Visual • Etomu News
               </p>
             </div>
           </div>
