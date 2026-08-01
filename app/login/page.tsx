@@ -4,9 +4,9 @@ export default function Login() {
   const handleGoogleLogin = () => {
     // 1. Get the exact domain the user is currently on (e.g., https://news.etomu.com)
     const currentOrigin = encodeURIComponent(window.location.origin);
-    
-    // 2. Redirect to your central Core API, telling it where to send the user back to
-    window.location.href = `https://api.etomu.com/api/auth/signin/google?callbackUrl=${currentOrigin}`;
+
+    // 2. Redirect to the secure Auth.js sign-in page (Removed "/google" to fix CSRF error)
+    window.location.href = `https://api.etomu.com/api/auth/signin?callbackUrl=${currentOrigin}`;
   };
 
   return (
@@ -28,7 +28,7 @@ export default function Login() {
         </svg>
         Continue with Google
       </button>
-      
+
       <p className="mt-6 text-center text-xs text-slate-400">
         By continuing, you agree to Etomu's Terms of Service and Privacy Policy.
       </p>
