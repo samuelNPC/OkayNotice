@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 
 export default function NewsletterForm() {
   const [email, setEmail] = useState("");
@@ -14,10 +12,16 @@ export default function NewsletterForm() {
 
     setStatus("loading");
     try {
-      await addDoc(collection(db, "subscribers"), {
-        email,
-        subscribedAt: serverTimestamp(),
+      const res = await fetch("https://api.etomu.com/api/subscribe", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
       });
+
+      if (!res.ok) throw new Error("Subscription failed");
+
       setStatus("success");
       setEmail("");
     } catch (error) {
@@ -27,7 +31,7 @@ export default function NewsletterForm() {
 
   return (
     <div className="bg-white p-6 sm:p-8 md:p-12 rounded-3xl border border-slate-200 shadow-sm my-8 md:my-12 flex flex-col lg:flex-row items-center justify-between gap-6 lg:gap-8">
-      
+
       {/* Left Side: Text */}
       <div className="text-center lg:text-left flex-1 max-w-xl w-full">
         <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 mb-2 md:mb-3">
@@ -37,7 +41,7 @@ export default function NewsletterForm() {
           Get the latest tech deals and guides delivered directly to your inbox.
         </p>
       </div>
-      
+
       {/* Right Side: Form */}
       <div className="w-full lg:w-auto flex-1 max-w-md shrink-0">
         {status === "success" ? (
