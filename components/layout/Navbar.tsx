@@ -9,7 +9,7 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
   
-  // Using the exact check from your AdminDashboard
+  // Custom Cloudflare Auth Check
   const { user, loading } = useAuth();
 
   useEffect(() => {
@@ -59,11 +59,11 @@ export default function Navbar() {
                 </Link>
               ))}
 
-              {/* Desktop Admin Button - Only shows if finished loading and user exists */}
+              {/* Desktop Admin Button */}
               {!loading && user && (
                 <Link 
                   href="/admin"
-                  className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-lg font-medium transition shadow-sm"
+                  className="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2 rounded-lg font-bold transition shadow-sm"
                 >
                   Dashboard
                 </Link>
@@ -72,8 +72,8 @@ export default function Navbar() {
 
             {/* 3. Mobile Right Side (Admin Button + Hamburger) */}
             <div className="flex items-center gap-4 md:hidden relative z-50">
-              
-              {/* Mobile Admin Button - Right between Logo and Hamburger */}
+
+              {/* Mobile Admin Button */}
               {!loading && user && (
                 <Link 
                   href="/admin"
@@ -101,7 +101,7 @@ export default function Navbar() {
 
       {/* Gray Overlay with Blur */}
       <div 
-        className={`fixed inset-0 top-16 bg-gray-600/60 backdrop-blur-sm transition-opacity duration-300 md:hidden ${
+        className={`fixed inset-0 top-16 bg-slate-900/40 backdrop-blur-sm transition-opacity duration-300 md:hidden ${
           isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
         style={{ zIndex: 40 }}
@@ -115,12 +115,12 @@ export default function Navbar() {
         }`}
         style={{ zIndex: 45 }}
       >
-        <div className="flex flex-col space-y-3 overflow-y-auto pb-6">
+        <div className="flex flex-col space-y-2 overflow-y-auto pb-6">
           {navLinks.map((link) => (
             <Link 
               key={link.name} 
               href={link.href} 
-              className="text-lg font-semibold text-slate-800 hover:text-blue-600 px-4 py-3 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-200 hover:shadow-sm transition-all"
+              className="text-lg font-semibold text-slate-800 hover:text-blue-600 px-4 py-3 rounded-xl hover:bg-slate-50 transition-all"
             >
               {link.name}
             </Link>
@@ -128,12 +128,12 @@ export default function Navbar() {
 
           {/* Drawer Admin Button */}
           {!loading && user && (
-            <div className="pt-4 mt-2 border-t border-slate-200">
+            <div className="pt-6 mt-4 border-t border-slate-100">
               <Link 
                 href="/admin" 
-                className="block text-center text-lg font-semibold text-white bg-slate-900 hover:bg-slate-800 px-4 py-3 rounded-xl shadow-sm transition-all"
+                className="block text-center text-lg font-bold text-white bg-blue-600 hover:bg-blue-700 px-4 py-3 rounded-xl shadow-sm transition-all"
               >
-                Admin Dashboard
+                Access Dashboard
               </Link>
             </div>
           )}
