@@ -12,33 +12,34 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   metadataBase: new URL("https://news.etomu.com"),
   title: {
-    default: "Etomu News | Technology, Business & Innovation",
+    default: "Etomu News | Politics, Sports, Tech, Business & More",
     template: "%s | Etomu News",
   },
   description:
-    "Etomu News brings you the latest technology news, business insights, AI updates, programming tutorials, entrepreneurship tips, and digital trends from Uganda and beyond.",
+    "Etomu News brings you the latest breaking news, football and sports updates, technology innovations, business insights, and lifestyle trends from Uganda and around the world.",
   keywords: [
     "Etomu News",
+    "Uganda news updates",
+    "politics Uganda",
+    "football news",
+    "sports updates",
     "Uganda technology news",
+    "business insights",
+    "real estate Uganda",
+    "education news",
+    "environment updates",
+    "health and wellness",
     "AI news",
-    "business news Uganda",
-    "technology Uganda",
-    "programming tutorials",
-    "web development",
-    "startups Uganda",
-    "entrepreneurship",
-    "digital innovation",
-    "Kabale technology",
-    "tech guides",
+    "lifestyle and entertainment",
+    "Kabale news",
+    "global news",
   ],
-  // NEW: Favicon configuration
   icons: {
     icon: [
       { url: "/etomu-48.png", sizes: "48x48", type: "image/png" },
       { url: "/etomu-192.png", sizes: "192x192", type: "image/png" },
       { url: "/etomu-512.png", sizes: "512x512", type: "image/png" },
     ],
-    // Optional but recommended: Apple Touch Icon for iOS devices
     apple: [
       { url: "/etomu-192.png", sizes: "192x192", type: "image/png" },
     ],
@@ -47,25 +48,25 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_UG",
     url: "https://news.etomu.com",
-    title: "Etomu News | Technology, Business & Innovation",
+    title: "Etomu News | Politics, Sports, Tech & Business Updates",
     description:
-      "Stay informed with the latest technology, AI, business, programming, and innovation news from Uganda and around the world.",
+      "Stay informed with the latest breaking news, football highlights, business insights, and technology innovations from Uganda and beyond.",
     siteName: "Etomu News",
     images: [
       {
-        url: "/etomu-og.png", // Ensure this matches your actual file extension (.png or .jpg)
+        url: "/etomu-og.png", 
         width: 1200,
         height: 1200,
-        alt: "Etomu News - Technology, Business & Innovation",
+        alt: "Etomu News - Politics, Sports, Tech & Business",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Etomu News | Technology, Business & Innovation",
+    title: "Etomu News | Politics, Sports, Tech & Business Updates",
     description:
-      "Stay informed with the latest technology, AI, business, programming, and innovation news from Uganda and around the world.",
-    images: ["/etomu-og.png"], // Ensure this matches your actual file extension
+      "Stay informed with the latest breaking news, football highlights, business insights, and technology innovations from Uganda and beyond.",
+    images: ["/etomu-og.png"], 
   },
   robots: {
     index: true,
