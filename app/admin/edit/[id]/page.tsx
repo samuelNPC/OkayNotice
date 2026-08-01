@@ -10,6 +10,14 @@ import MarkdownEditor from "@/components/admin/MarkdownEditor";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 
+const PREDEFINED_CATEGORIES = [
+  "Politics", "Football", "Sports", "Local News", "World News",
+  "Technology", "Artificial Intelligence", "Business", "Finance",
+  "Real Estate", "Education", "Environment", "Health & Wellness",
+  "Entertainment", "Lifestyle", "Startups", "Gadgets & Reviews",
+  "Crypto & Web3", "Programming", "Travel"
+];
+
 export default function EditPostPage({ params }: { params: { id: string } }) {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
@@ -21,7 +29,8 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
   const [slug, setSlug] = useState("");
   const [excerpt, setExcerpt] = useState("");
   const [content, setContent] = useState("");
-  const [category, setCategory] = useState("Technology");
+  const [category, setCategory] = useState("Politics");
+  const [isCustomCategory, setIsCustomCategory] = useState(false); // NEW STATE
   const [coverImage, setCoverImage] = useState("");
 
   // Status State
@@ -51,8 +60,14 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
           setSlug(data.slug || "");
           setExcerpt(data.excerpt || "");
           setContent(data.content || "");
-          setCategory(data.category || "Technology");
           setCoverImage(data.coverImage || "");
+
+          const fetchedCategory = data.category || "Politics";
+          setCategory(fetchedCategory);
+          // If the fetched category isn't in our standard list, show the custom input
+          if (!PREDEFINED_CATEGORIES.includes(fetchedCategory)) {
+            setIsCustomCategory(true);
+          }
         } else {
           setMessage({ type: "error", text: "Post not found." });
         }
@@ -68,6 +83,11 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!category.trim()) {
+      setMessage({ type: "error", text: "Category is required." });
+      return;
+    }
+    
     setIsSubmitting(true);
     setMessage({ type: "", text: "" });
 
@@ -78,7 +98,7 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
         slug,
         excerpt,
         content,
-        category,
+        category: category.trim(),
         coverImage,
       });
 
@@ -130,40 +150,53 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
               <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-600 outline-none" required />
             </div>
             
-            {/* Updated Category Input with Datalist */}
+            {/* Native Select or Custom Input */}
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
-              <input
-                type="text"
-                list="category-options"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                placeholder="Select or type a category..."
-                className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-600 outline-none bg-white"
-                required
-              />
-              <datalist id="category-options">
-                <option value="Politics" />
-                <option value="Football" />
-                <option value="Sports" />
-                <option value="Local News" />
-                <option value="World News" />
-                <option value="Technology" />
-                <option value="Artificial Intelligence" />
-                <option value="Business" />
-                <option value="Finance" />
-                <option value="Real Estate" />
-                <option value="Education" />
-                <option value="Environment" />
-                <option value="Health & Wellness" />
-                <option value="Entertainment" />
-                <option value="Lifestyle" />
-                <option value="Startups" />
-                <option value="Gadgets & Reviews" />
-                <option value="Crypto & Web3" />
-                <option value="Programming" />
-                <option value="Travel" />
-              </datalist>
+              
+              {!isCustomCategory ? (
+                <select
+                  value={category}
+                  onChange={(e) => {
+                    if (e.target.value === "custom_option") {
+                      setIsCustomCategory(true);
+                      setCategory(""); // Clear to allow typing
+                    } else {
+                      setCategory(e.target.value);
+                    }
+                  }}
+                  className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-600 outline-none bg-white cursor-pointer"
+                  required
+                >
+                  {PREDEFINED_CATEGORIES.map((cat) => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                  <option disabled>──────────</option>
+                  <option value="custom_option" className="font-bold text-blue-600">➕ Type a Custom Category...</option>
+                </select>
+              ) : (
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    placeholder="Type custom category..."
+                    className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-600 outline-none bg-white"
+                    required
+                    autoFocus
+                  />
+                  <button 
+                    type="button" 
+                    onClick={() => {
+                      setIsCustomCategory(false);
+                      setCategory("Politics"); // default fallback
+                    }}
+                    className="px-4 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg font-medium transition"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
