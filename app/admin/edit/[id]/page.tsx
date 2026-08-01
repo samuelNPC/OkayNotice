@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "@/components/context/AuthContext";
 import MarkdownEditor from "@/components/admin/MarkdownEditor";
 import { ArrowLeft, Loader2 } from "lucide-react";
@@ -15,9 +15,12 @@ const PREDEFINED_CATEGORIES = [
   "Crypto & Web3", "Programming", "Travel"
 ];
 
-export default function EditPostPage({ params }: { params: { id: string } }) {
+export default function EditPostPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
+  const params = useParams();
+  const id = params.id as string;
+
   const [mounted, setMounted] = useState(false);
   const [fetching, setFetching] = useState(true);
 
@@ -28,7 +31,7 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("Politics");
   const [isCustomCategory, setIsCustomCategory] = useState(false);
-  
+
   // Image State
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [coverImage, setCoverImage] = useState("");
@@ -51,8 +54,9 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
   // Fetch the existing post data from Cloudflare API
   useEffect(() => {
     const fetchPost = async () => {
+      if (!id) return;
       try {
-        const res = await fetch(`https://api.etomu.com/api/posts/${params.id}`);
+        const res = await fetch(`https://api.etomu.com/api/posts/${id}`);
         const data = await res.json();
 
         if (res.ok && data.post) {
@@ -79,8 +83,8 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
       }
     };
 
-    if (user) fetchPost();
-  }, [params.id, user]);
+    if (user && id) fetchPost();
+  }, [id, user]);
 
   // ================= CLOUDFLARE R2 UPLOAD =================
   const uploadToR2 = async (file: File) => {
@@ -114,7 +118,7 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
         finalImageUrl = await uploadToR2(imageFile);
       }
 
-      const res = await fetch(`https://api.etomu.com/api/posts/${params.id}`, {
+      const res = await fetch(`https://api.etomu.com/api/posts/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
