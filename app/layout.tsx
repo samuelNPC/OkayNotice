@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css";
+import { Analytics } from "@vercel/analytics/react";
+
+import { AuthProvider } from "@/components/context/AuthContext";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { Analytics } from "@vercel/analytics/react";
-import { AuthProvider } from "@/components/context/AuthContext";
 import AmbientBackground from "@/components/home/AmbientBackground";
+
+import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -88,11 +90,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${inter.className} bg-slate-50 text-slate-900 flex flex-col min-h-screen relative`}
-      >
+      <body className={`${inter.className} bg-slate-50 text-slate-900 flex flex-col min-h-screen relative`}>
         <AmbientBackground />
-
+        
         <AuthProvider>
           <Navbar />
           <main className="flex-grow w-full relative z-10">
