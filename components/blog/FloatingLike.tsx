@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { doc, updateDoc, increment } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import { ThumbsUp, ThumbsDown } from "lucide-react";
 
 export default function FloatingLike({ postId, initialLikes = 0 }: { postId: string, initialLikes?: number }) {
@@ -12,18 +10,24 @@ export default function FloatingLike({ postId, initialLikes = 0 }: { postId: str
   const handleVote = async (type: "up" | "down") => {
     if (voted === type) return; // Prevent double voting the same way
 
-    const postRef = doc(db, "posts", postId);
-    
+    // 1. Optimistic UI Update (Makes the button feel instantly responsive)
+    if (type === "up") {
+      setLikes((prev) => prev + 1);
+      setVoted("up");
+    } else {
+      setLikes((prev) => (prev > 0 ? prev - 1 : 0));
+      setVoted("down");
+    }
+
+    // 2. Background Database Update
     try {
-      if (type === "up") {
-        setLikes((prev) => prev + 1);
-        setVoted("up");
-        await updateDoc(postRef, { likes: increment(1) });
-      } else {
-        setLikes((prev) => (prev > 0 ? prev - 1 : 0));
-        setVoted("down");
-        await updateDoc(postRef, { likes: increment(-1) });
-      }
+      await fetch(`https://api.etomu.com/api/posts/${postId}/like`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ action: type }),
+      });
     } catch (error) {
       console.error("Error updating likes:", error);
     }
