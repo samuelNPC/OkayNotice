@@ -1,30 +1,61 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { onAuthStateChanged, User } from "firebase/auth";
-import { auth } from "@/lib/firebase";
 
-interface AuthContextType {
-  user: User | null;
-  loading: boolean;
+// Matches your D1 database user structure
+interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  image?: string;
+  role?: string;
 }
 
-const AuthContext = createContext<AuthContextType>({ user: null, loading: true });
+interface AuthContextType {
+  user: UserProfile | null;
+  loading: boolean;
+  refreshUser: () => Promise<void>;
+}
+
+const AuthContext = createContext<AuthContextType>({ 
+  user: null, 
+  loading: true,
+  refreshUser: async () => {} 
+});
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
+  const fetchUser = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("https://api.etomu.com/api/users/me", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include", // 🚨 Crucial: Tells the browser to send your Auth.js cookie
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setUser(data.user);
+      } else {
+        setUser(null);
+      }
+    } catch (error) {
+      console.error("Failed to verify session with Etomu API:", error);
+      setUser(null);
+    } finally {
       setLoading(false);
-    });
-    return () => unsubscribe();
+    }
+  };
+
+  useEffect(() => {
+    fetchUser();
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading }}>
+    <AuthContext.Provider value={{ user, loading, refreshUser: fetchUser }}>
       {children}
     </AuthContext.Provider>
   );
