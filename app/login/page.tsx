@@ -1,13 +1,56 @@
 "use client";
 
-export default function Login() {
-  const handleGoogleLogin = () => {
-    // 1. Get the exact domain the user is currently on (e.g., https://news.etomu.com)
-    const currentOrigin = encodeURIComponent(window.location.origin);
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
-    // 2. Redirect to the secure Auth.js sign-in page (Removed "/google" to fix CSRF error)
-    window.location.href = `https://api.etomu.com/api/auth/signin?callbackUrl=${currentOrigin}`;
+export default function Login() {
+  const router = useRouter();
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
+  useEffect(() => {
+    // 1. Automatically check if the user already has an active session
+    async function checkAuth() {
+      try {
+        const res = await fetch("https://api.etomu.com/api/users/me", {
+          method: "GET",
+          credentials: "include", // Ensures the secure Auth.js cookie is sent
+        });
+
+        if (res.ok) {
+          // If successful, they are logged in! Redirect them immediately.
+          router.push("/dashboard");
+        } else {
+          // If not logged in, stop the loading spinner and show the login button.
+          setIsCheckingAuth(false);
+        }
+      } catch (err) {
+        console.error("Auth check failed:", err);
+        setIsCheckingAuth(false);
+      }
+    }
+
+    checkAuth();
+  }, [router]);
+
+  const handleGoogleLogin = () => {
+    // 2. Set the target to the dashboard so new logins bounce straight there
+    const targetUrl = `${window.location.origin}/dashboard`;
+    const callbackUrl = encodeURIComponent(targetUrl);
+
+    window.location.href = `https://api.etomu.com/api/auth/signin?callbackUrl=${callbackUrl}`;
   };
+
+  // 3. Show a loading state so the login screen doesn't flash before redirecting
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-4 border-slate-900 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-sm font-medium text-slate-500">Checking session...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-md mx-auto mt-20 p-8 bg-white rounded-2xl shadow-sm border border-slate-200">
