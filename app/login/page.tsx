@@ -32,12 +32,13 @@ export default function Login() {
     checkAuth();
   }, [router]);
 
-  const handleGoogleLogin = () => {
-    // 2. Set the target to the dashboard so new logins bounce straight there
+    const handleGoogleLogin = () => {
+    // 1. Set the target to the dashboard so new logins bounce straight there
     const targetUrl = `${window.location.origin}/dashboard`;
     const callbackUrl = encodeURIComponent(targetUrl);
 
-    window.location.href = `https://api.etomu.com/api/auth/signin?callbackUrl=${callbackUrl}`;
+    // 🚨 FIX: Point directly to the Google provider endpoint
+    window.location.href = `https://api.etomu.com/api/auth/signin/google?callbackUrl=${callbackUrl}`;
   };
 
   // 3. Show a loading state so the login screen doesn't flash before redirecting
