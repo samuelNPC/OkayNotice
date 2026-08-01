@@ -2,10 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import { useAuth } from "@/components/context/AuthContext";
-import ImageUpload from "@/components/admin/ImageUpload";
 import MarkdownEditor from "@/components/admin/MarkdownEditor";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
@@ -30,8 +27,12 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
   const [excerpt, setExcerpt] = useState("");
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("Politics");
-  const [isCustomCategory, setIsCustomCategory] = useState(false); // NEW STATE
+  const [isCustomCategory, setIsCustomCategory] = useState(false);
+  
+  // Image State
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [coverImage, setCoverImage] = useState("");
+  const [previewUrl, setPreviewUrl] = useState("");
 
   // Status State
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -47,24 +48,24 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
     }
   }, [user, authLoading, mounted, router]);
 
-  // Fetch the existing post data
+  // Fetch the existing post data from Cloudflare API
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const docRef = doc(db, "posts", params.id);
-        const docSnap = await getDoc(docRef);
+        const res = await fetch(`https://api.etomu.com/api/posts/${params.id}`);
+        const data = await res.json();
 
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          setTitle(data.title || "");
-          setSlug(data.slug || "");
-          setExcerpt(data.excerpt || "");
-          setContent(data.content || "");
-          setCoverImage(data.coverImage || "");
+        if (res.ok && data.post) {
+          const d = data.post;
+          setTitle(d.title || "");
+          setSlug(d.slug || "");
+          setExcerpt(d.excerpt || "");
+          setContent(d.content || "");
+          setCoverImage(d.coverImage || "");
+          setPreviewUrl(d.coverImage || "");
 
-          const fetchedCategory = data.category || "Politics";
+          const fetchedCategory = d.category || "Politics";
           setCategory(fetchedCategory);
-          // If the fetched category isn't in our standard list, show the custom input
           if (!PREDEFINED_CATEGORIES.includes(fetchedCategory)) {
             setIsCustomCategory(true);
           }
@@ -81,26 +82,53 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
     if (user) fetchPost();
   }, [params.id, user]);
 
+  // ================= CLOUDFLARE R2 UPLOAD =================
+  const uploadToR2 = async (file: File) => {
+    const fd = new FormData();
+    fd.append("file", file);
+
+    const res = await fetch("https://api.etomu.com/api/upload", { 
+      method: "POST",
+      credentials: "include",
+      body: fd
+    });
+
+    if (!res.ok) throw new Error("Image upload failed");
+    const data = await res.json();
+    return data.url; 
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!category.trim()) {
       setMessage({ type: "error", text: "Category is required." });
       return;
     }
-    
+
     setIsSubmitting(true);
     setMessage({ type: "", text: "" });
 
     try {
-      const docRef = doc(db, "posts", params.id);
-      await updateDoc(docRef, {
-        title,
-        slug,
-        excerpt,
-        content,
-        category: category.trim(),
-        coverImage,
+      let finalImageUrl = coverImage;
+      if (imageFile) {
+        finalImageUrl = await uploadToR2(imageFile);
+      }
+
+      const res = await fetch(`https://api.etomu.com/api/posts/${params.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          title,
+          slug,
+          excerpt,
+          content,
+          category: category.trim(),
+          coverImage: finalImageUrl,
+        })
       });
+
+      if (!res.ok) throw new Error("Failed to update post");
 
       setMessage({ type: "success", text: "Post updated successfully!" });
       setTimeout(() => router.push("/admin/posts"), 1500);
@@ -141,7 +169,28 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">Cover Image</label>
-            <ImageUpload onUploadSuccess={(url) => setCoverImage(url)} defaultImage={coverImage} />
+            <label className="block cursor-pointer">
+              <div className="h-48 max-w-xl bg-slate-50 border-2 border-dashed border-slate-300 hover:border-blue-500 transition-colors rounded-xl overflow-hidden flex items-center justify-center relative">
+                {previewUrl ? (
+                  <img src={previewUrl} alt="Cover preview" className="absolute inset-0 w-full h-full object-cover" />
+                ) : (
+                  <span className="text-slate-500 font-medium text-sm">Click to Upload Cover</span>
+                )}
+              </div>
+              <input
+                type="file" accept="image/*" hidden
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    setImageFile(file);
+                    setPreviewUrl(URL.createObjectURL(file)); 
+                  } else {
+                    setImageFile(null);
+                    setPreviewUrl(coverImage);
+                  }
+                }}
+              />
+            </label>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -149,18 +198,16 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
               <label className="block text-sm font-medium text-slate-700 mb-1">Title</label>
               <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-600 outline-none" required />
             </div>
-            
-            {/* Native Select or Custom Input */}
+
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
-              
               {!isCustomCategory ? (
                 <select
                   value={category}
                   onChange={(e) => {
                     if (e.target.value === "custom_option") {
                       setIsCustomCategory(true);
-                      setCategory(""); // Clear to allow typing
+                      setCategory(""); 
                     } else {
                       setCategory(e.target.value);
                     }
@@ -189,7 +236,7 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
                     type="button" 
                     onClick={() => {
                       setIsCustomCategory(false);
-                      setCategory("Politics"); // default fallback
+                      setCategory("Politics"); 
                     }}
                     className="px-4 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg font-medium transition"
                   >
