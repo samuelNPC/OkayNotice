@@ -1,5 +1,4 @@
 import { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
@@ -147,12 +146,10 @@ export default async function SinglePostPage({ params }: { params: Promise<{ slu
         {post.coverImage && (
           <div className="relative mb-10 overflow-hidden">
             <div className="relative w-full aspect-video md:aspect-[21/9] -mx-4 md:mx-0 bg-slate-100 border-y md:border md:border-slate-200 md:rounded-2xl overflow-hidden shadow-sm">
-              <Image 
+              <img 
                 src={post.coverImage} 
                 alt={post.title} 
-                fill 
-                className="object-cover transition-transform duration-700 hover:scale-105"
-                priority
+                className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
               />
             </div>
             <div className="mt-3 px-2 md:px-0">
