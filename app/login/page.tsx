@@ -32,14 +32,44 @@ export default function Login() {
     checkAuth();
   }, [router]);
 
-    const handleGoogleLogin = () => {
-    // 1. Set the target to the dashboard so new logins bounce straight there
-    const targetUrl = `${window.location.origin}/dashboard`;
-    const callbackUrl = encodeURIComponent(targetUrl);
+      const handleGoogleLogin = async () => {
+    try {
+      const targetUrl = `${window.location.origin}/dashboard`;
 
-    // 🚨 FIX: Point directly to the Google provider endpoint
-    window.location.href = `https://api.etomu.com/api/auth/signin/google?callbackUrl=${callbackUrl}`;
+      // 1. Fetch the secure CSRF token from your backend
+      const csrfRes = await fetch("https://api.etomu.com/api/auth/csrf", { 
+        credentials: "include" 
+      });
+      const { csrfToken } = await csrfRes.json();
+
+      // 2. Programmatically create an invisible form to securely POST to Google
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = "https://api.etomu.com/api/auth/signin/google";
+
+      // Add CSRF Token
+      const csrfInput = document.createElement("input");
+      csrfInput.type = "hidden";
+      csrfInput.name = "csrfToken";
+      csrfInput.value = csrfToken;
+      form.appendChild(csrfInput);
+
+      // Add Callback Target
+      const callbackInput = document.createElement("input");
+      callbackInput.type = "hidden";
+      callbackInput.name = "callbackUrl";
+      callbackInput.value = targetUrl;
+      form.appendChild(callbackInput);
+
+      // Submit the form instantly
+      document.body.appendChild(form);
+      form.submit();
+      
+    } catch (error) {
+      console.error("Failed to initiate secure login:", error);
+    }
   };
+
 
   // 3. Show a loading state so the login screen doesn't flash before redirecting
   if (isCheckingAuth) {
