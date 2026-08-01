@@ -21,9 +21,9 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
   const [slug, setSlug] = useState("");
   const [excerpt, setExcerpt] = useState("");
   const [content, setContent] = useState("");
-  const [category, setCategory] = useState("Tech");
+  const [category, setCategory] = useState("Technology");
   const [coverImage, setCoverImage] = useState("");
-  
+
   // Status State
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
@@ -44,14 +44,14 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
       try {
         const docRef = doc(db, "posts", params.id);
         const docSnap = await getDoc(docRef);
-        
+
         if (docSnap.exists()) {
           const data = docSnap.data();
           setTitle(data.title || "");
           setSlug(data.slug || "");
           setExcerpt(data.excerpt || "");
           setContent(data.content || "");
-          setCategory(data.category || "Tech");
+          setCategory(data.category || "Technology");
           setCoverImage(data.coverImage || "");
         } else {
           setMessage({ type: "error", text: "Post not found." });
@@ -129,13 +129,41 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
               <label className="block text-sm font-medium text-slate-700 mb-1">Title</label>
               <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-600 outline-none" required />
             </div>
+            
+            {/* Updated Category Input with Datalist */}
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
-              <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-600 outline-none bg-white">
-                <option value="Tech">Tech</option>
-                <option value="Finance">Finance</option>
-                <option value="Deals">Deals</option>
-              </select>
+              <input
+                type="text"
+                list="category-options"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                placeholder="Select or type a category..."
+                className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-600 outline-none bg-white"
+                required
+              />
+              <datalist id="category-options">
+                <option value="Politics" />
+                <option value="Football" />
+                <option value="Sports" />
+                <option value="Local News" />
+                <option value="World News" />
+                <option value="Technology" />
+                <option value="Artificial Intelligence" />
+                <option value="Business" />
+                <option value="Finance" />
+                <option value="Real Estate" />
+                <option value="Education" />
+                <option value="Environment" />
+                <option value="Health & Wellness" />
+                <option value="Entertainment" />
+                <option value="Lifestyle" />
+                <option value="Startups" />
+                <option value="Gadgets & Reviews" />
+                <option value="Crypto & Web3" />
+                <option value="Programming" />
+                <option value="Travel" />
+              </datalist>
             </div>
           </div>
 
