@@ -16,10 +16,10 @@ export default function AdminDashboard() {
     }
   }, [user, loading, router]);
 
-  const handleLogout = () => {
-    // Redirects to Auth.js built-in signout route
-    window.location.href = "https://api.etomu.com/api/auth/signout";
+    const handleLogout = () => {
+    window.location.href = "https://api.etomu.com/api/auth/logout";
   };
+
 
   if (loading || !user) {
     return (
