@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/components/context/AuthContext";
-import MarkdownEditor from "@/components/admin/MarkdownEditor"; // Using your newly fixed editor
+import MarkdownEditor from "@/components/admin/MarkdownEditor"; 
 import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 
@@ -20,7 +20,7 @@ function EditorForm() {
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
   const [content, setContent] = useState("");
-  const [category, setCategory] = useState("Tech");
+  const [category, setCategory] = useState("Politics"); // Updated default
   const [tags, setTags] = useState("");
   const [readTime, setReadTime] = useState("");
   const [excerpt, setExcerpt] = useState("");
@@ -63,7 +63,7 @@ function EditorForm() {
           setTitle(d.title || "");
           setSlug(d.slug || editId);
           setContent(d.content || "");
-          setCategory(d.category || "Tech");
+          setCategory(d.category || "Politics");
           setTags(d.tags ? d.tags.join(", ") : "");
           setReadTime(d.readTime || "");
           setExcerpt(d.excerpt || "");
@@ -88,46 +88,45 @@ function EditorForm() {
 
   // ================= CLOUDINARY UPLOAD =================
   const uploadToCloudinary = async (file: File) => {
-  console.log("1. Starting upload process for:", file.name);
+    console.log("1. Starting upload process for:", file.name);
 
-  // Use the RELATIVE route, starting with /
-  const sigRes = await fetch("/api/upload-image", { 
-    method: "POST",
-    headers: { "Content-Type": "application/json" }
-  });
+    // Use the RELATIVE route, starting with /
+    const sigRes = await fetch("/api/upload-image", { 
+      method: "POST",
+      headers: { "Content-Type": "application/json" }
+    });
 
-  if (!sigRes.ok) {
-    const errorBody = await sigRes.text(); // Get the actual error text
-    console.error("2. Signature API Failed:", errorBody);
-    throw new Error(`Signature API failed: ${sigRes.status} ${errorBody}`);
-  }
+    if (!sigRes.ok) {
+      const errorBody = await sigRes.text(); // Get the actual error text
+      console.error("2. Signature API Failed:", errorBody);
+      throw new Error(`Signature API failed: ${sigRes.status} ${errorBody}`);
+    }
 
-  const sigData = await sigRes.json();
-  console.log("3. Signature received:", sigData);
+    const sigData = await sigRes.json();
+    console.log("3. Signature received:", sigData);
 
-  const fd = new FormData();
-  fd.append("file", file);
-  fd.append("api_key", sigData.apiKey);
-  fd.append("timestamp", sigData.timestamp.toString());
-  fd.append("signature", sigData.signature);
-  fd.append("folder", "kabale_blog"); 
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("api_key", sigData.apiKey);
+    fd.append("timestamp", sigData.timestamp.toString());
+    fd.append("signature", sigData.signature);
+    fd.append("folder", "kabale_blog"); 
 
-  console.log("4. Sending to Cloudinary...");
-  const uploadRes = await fetch(
-    `https://api.cloudinary.com/v1_1/${sigData.cloudName}/image/upload`, 
-    { method: "POST", body: fd }
-  );
+    console.log("4. Sending to Cloudinary...");
+    const uploadRes = await fetch(
+      `https://api.cloudinary.com/v1_1/${sigData.cloudName}/image/upload`, 
+      { method: "POST", body: fd }
+    );
 
-  const uploadData = await uploadRes.json();
-  if (uploadData.error) {
-    console.error("5. Cloudinary Upload Error:", uploadData.error);
-    throw new Error(uploadData.error.message);
-  }
+    const uploadData = await uploadRes.json();
+    if (uploadData.error) {
+      console.error("5. Cloudinary Upload Error:", uploadData.error);
+      throw new Error(uploadData.error.message);
+    }
 
-  console.log("6. Upload Success! URL:", uploadData.secure_url);
-  return uploadData.secure_url;
-};
-
+    console.log("6. Upload Success! URL:", uploadData.secure_url);
+    return uploadData.secure_url;
+  };
 
   // ================= SUBMIT =================
   const handleSubmit = async (e: React.FormEvent) => {
@@ -285,19 +284,41 @@ function EditorForm() {
 
           {/* Details & SEO */}
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
+            
+            {/* Category Select or Type */}
             <div>
               <label className="block text-xs font-bold uppercase text-slate-500 mb-2">Category</label>
-              <select
+              <input
+                type="text"
+                list="category-options"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
+                placeholder="Select or type a category..."
                 className="w-full p-3 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-600 bg-white"
-              >
-                <option value="Tech">Tech</option>
-                <option value="Finance">Finance</option>
-                <option value="Deals">Deals</option>
-                <option value="Business">Business</option>
-                <option value="Startups">Startups</option>
-              </select>
+                required
+              />
+              <datalist id="category-options">
+                <option value="Politics" />
+                <option value="Football" />
+                <option value="Sports" />
+                <option value="Local News" />
+                <option value="World News" />
+                <option value="Technology" />
+                <option value="Artificial Intelligence" />
+                <option value="Business" />
+                <option value="Finance" />
+                <option value="Real Estate" />
+                <option value="Education" />
+                <option value="Environment" />
+                <option value="Health & Wellness" />
+                <option value="Entertainment" />
+                <option value="Lifestyle" />
+                <option value="Startups" />
+                <option value="Gadgets & Reviews" />
+                <option value="Crypto & Web3" />
+                <option value="Programming" />
+                <option value="Travel" />
+              </datalist>
             </div>
 
             <div>
