@@ -2,11 +2,9 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { signOut } from "firebase/auth";
-import { auth } from "@/lib/firebase";
 import { useAuth } from "@/components/context/AuthContext";
 import Link from "next/link";
-import { FileText, LogOut, PlusCircle, Settings } from "lucide-react";
+import { FileText, LogOut, PlusCircle, Settings, Loader2 } from "lucide-react";
 
 export default function AdminDashboard() {
   const { user, loading } = useAuth();
@@ -14,17 +12,22 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     if (!loading && !user) {
-      router.push("/admin/login");
+      router.push("/login"); // Pointing to your custom login page
     }
   }, [user, loading, router]);
 
-  const handleLogout = async () => {
-    await signOut(auth);
-    router.push("/admin/login");
+  const handleLogout = () => {
+    // Redirects to Auth.js built-in signout route
+    window.location.href = "https://api.etomu.com/api/auth/signout";
   };
 
   if (loading || !user) {
-    return <div className="text-center py-20 text-slate-500">Verifying access...</div>;
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center text-slate-500 space-y-4">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        <p>Verifying access...</p>
+      </div>
+    );
   }
 
   return (
