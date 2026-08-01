@@ -32,6 +32,9 @@ export default async function AuthorProfilePage({ params }: { params: Promise<{ 
   const decodedName = decodeURIComponent(name);
   const posts = await getAuthorPosts(decodedName);
 
+  // Extract author avatar image from the first post if available
+  const authorImage = posts.length > 0 ? posts[0].authorImage : null;
+
   return (
     <div className="bg-slate-50 min-h-screen pb-24">
       {/* Author Hero Section */}
@@ -42,20 +45,32 @@ export default async function AuthorProfilePage({ params }: { params: Promise<{ 
           </Link>
 
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-            <div className="w-24 h-24 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-3xl font-black border-4 border-white shadow-md">
-              {decodedName.charAt(0).toUpperCase()}
+            {/* Dynamic Avatar / Initial Fallback */}
+            <div className="w-24 h-24 rounded-full overflow-hidden bg-blue-100 text-blue-600 flex items-center justify-center text-3xl font-black border-4 border-white shadow-md shrink-0">
+              {authorImage ? (
+                <img src={authorImage} alt={decodedName} className="w-full h-full object-cover" />
+              ) : (
+                <span>{decodedName.charAt(0).toUpperCase()}</span>
+              )}
             </div>
 
             <div className="flex-1">
-              <div className="flex items-center space-x-2 mb-1">
-                <h1 className="text-3xl font-black text-slate-900">{decodedName}</h1>
-                <span className="bg-blue-50 text-blue-700 text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider flex items-center">
+              {/* Name on one line, breaking if long */}
+              <h1 className="text-3xl font-black text-slate-900 mb-2 break-words">
+                {decodedName}
+              </h1>
+
+              {/* Verified Contributor Badge on the next line below */}
+              <div className="mb-4">
+                <span className="inline-flex items-center bg-blue-50 text-blue-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
                   <Award size={12} className="mr-1" /> Verified Contributor
                 </span>
               </div>
+
               <p className="text-slate-600 text-sm mb-4">
                 Contributing writer & analyst at Etomu News. Building a public portfolio of expert insights.
               </p>
+
               <div className="flex items-center space-x-4 text-xs font-bold text-slate-500">
                 <span className="flex items-center bg-slate-100 px-3 py-1.5 rounded-lg">
                   <BookOpen size={14} className="mr-1.5 text-blue-600" /> {posts.length} Published Articles
