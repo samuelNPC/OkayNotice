@@ -1,21 +1,6 @@
 import Link from "next/link";
-import { collection, getDocs, query, orderBy, limit, where } from "firebase/firestore";
-import { db } from "@/lib/firebase";
-import NewsletterForm from "@/components/home/NewsletterForm";
 import FeaturedCarousel from "@/components/home/FeaturedCarousel";
-import MoreButton from "@/components/home/MoreButton";
-import { FileText, Wrench, ShoppingBag, AlertCircle, Bookmark, Tag } from "lucide-react";
-
-export const dynamic = "force-dynamic";
-
-const serializeDoc = (doc: any) => {
-  const data = doc.data();
-  return {
-    id: doc.id,
-    ...data,
-    createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : null,
-  };
-};
+import { Bookmark, Tag } from "lucide-react";
 
 const formatDate = (isoString: string | null) => {
   if (!isoString) return "";
@@ -23,17 +8,13 @@ const formatDate = (isoString: string | null) => {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 };
 
-// Helper function to extract and count tags from all posts
 const getPopularTags = (posts: any[]) => {
   const tagCounts: Record<string, number> = {};
-
   posts.forEach(post => {
     if (post.tags && Array.isArray(post.tags)) {
       post.tags.forEach((tag: string) => {
         const cleanTag = tag.trim();
-        if (cleanTag) {
-          tagCounts[cleanTag] = (tagCounts[cleanTag] || 0) + 1;
-        }
+        if (cleanTag) tagCounts[cleanTag] = (tagCounts[cleanTag] || 0) + 1;
       });
     }
   });
@@ -46,28 +27,25 @@ const getPopularTags = (posts: any[]) => {
 
 export default async function HomePage() {
   try {
-    const postsRef = collection(db, "posts");
-
-    const allRecentQuery = query(postsRef, orderBy("createdAt", "desc"), limit(50));
-    const allRecentSnapshot = await getDocs(allRecentQuery);
-    const allRecentPosts = allRecentSnapshot.docs.map(serializeDoc);
+    // 1. Fetch the latest 50 posts for the homepage feed and tags computation
+    const allRecentRes = await fetch("https://api.etomu.com/api/posts?limit=50", { next: { revalidate: 60 } });
+    const allRecentData = await allRecentRes.json();
+    const allRecentPosts = allRecentData.posts || [];
 
     const latestPosts = allRecentPosts.slice(0, 9);
     const popularTags = getPopularTags(allRecentPosts);
 
-    const featuredQuery = query(postsRef, where("isFeatured", "==", true), limit(6));
-    const featuredSnapshot = await getDocs(featuredQuery);
-    const featuredPosts = featuredSnapshot.docs.map(serializeDoc);
+    // 2. Fetch Featured posts
+    const featuredRes = await fetch("https://api.etomu.com/api/posts?featured=true&limit=6", { next: { revalidate: 60 } });
+    const featuredData = await featuredRes.json();
+    const featuredPosts = featuredData.posts || [];
 
     const displayFeatured = featuredPosts.length > 0 ? featuredPosts : latestPosts.slice(0, 6);
-
     const defaultAvatar = "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg";
 
     return (
       <div className="w-full min-h-screen text-slate-900 pb-20 relative z-10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-6 md:pt-8">
-
-          
 
           {/* 1. FEATURED STORIES */}
           <section className="md:hidden">
@@ -77,7 +55,7 @@ export default async function HomePage() {
           <section className="hidden md:block">
             <h2 className="text-2xl font-black text-slate-800 mb-6">Featured Stories</h2>
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
-              {displayFeatured.map((post) => (
+              {displayFeatured.map((post: any) => (
                 <Link 
                   key={post.id} 
                   href={`/blog/${post.slug}`}
@@ -151,17 +129,13 @@ export default async function HomePage() {
 
           <hr className="border-slate-200/50 my-10" />
 
-          
-
-          <hr className="border-slate-200/50 my-10" />
-
           {/* 4. LATEST ARTICLES */}
           <section>
             <h2 className="text-xl md:text-2xl font-black text-slate-800 mb-6">Latest Articles</h2>
 
             {/* Mobile Latest Articles */}
             <div className="md:hidden space-y-2">
-              {latestPosts.map((post, index) => (
+              {latestPosts.map((post: any) => (
                 <div key={post.id} className="bg-white/70 backdrop-blur-md border border-white/60 rounded-2xl overflow-hidden shadow-sm">
                   <Link href={`/blog/${post.slug}`} className="flex gap-4 items-center group p-3">
                     <div className="w-24 h-24 shrink-0 rounded-xl overflow-hidden border border-slate-100">
@@ -215,4 +189,4 @@ export default async function HomePage() {
       </div>
     );
   }
-                  }
+}
