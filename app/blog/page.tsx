@@ -13,7 +13,6 @@ const POSTS_PER_PAGE = 9;
 
 async function getBlogData() {
   try {
-    // Run both fetches in parallel for maximum speed
     const [allRes, featuredRes] = await Promise.all([
       fetch("https://api.etomu.com/api/posts", { next: { revalidate: 60 } }),
       fetch("https://api.etomu.com/api/posts?featured=true", { next: { revalidate: 60 } })
@@ -35,9 +34,10 @@ async function getBlogData() {
 export default async function BlogPage({
   searchParams,
 }: {
-  searchParams: { page?: string };
+  searchParams: Promise<{ page?: string }>;
 }) {
-  const currentPage = Number(searchParams?.page) || 1;
+  const resolvedSearchParams = await searchParams;
+  const currentPage = Number(resolvedSearchParams?.page) || 1;
   const { allPosts, featuredPosts } = await getBlogData();
 
   // Calculate Pagination
