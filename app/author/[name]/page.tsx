@@ -1,7 +1,7 @@
-import { Metadata } from "async_hooks"; // or standard next types
+import { Metadata } from "next";
 import Link from "next/link";
 import PostCard from "@/components/cards/PostCard";
-import { User, ArrowLeft, BookOpen, Award } from "lucide-react";
+import { ArrowLeft, BookOpen, Award } from "lucide-react";
 
 async function getAuthorPosts(authorName: string) {
   try {
@@ -15,6 +15,16 @@ async function getAuthorPosts(authorName: string) {
   } catch (error) {
     return [];
   }
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ name: string }> }): Promise<Metadata> {
+  const { name } = await params;
+  const decodedName = decodeURIComponent(name);
+
+  return {
+    title: `${decodedName} - Author Profile | Etomu News`,
+    description: `Read all published articles and expert insights by ${decodedName} on Etomu News.`,
+  };
 }
 
 export default async function AuthorProfilePage({ params }: { params: Promise<{ name: string }> }) {
