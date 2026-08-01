@@ -2,8 +2,6 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import { useAuth } from "@/components/context/AuthContext";
 import MarkdownEditor from "@/components/admin/MarkdownEditor"; 
 import { ArrowLeft, Loader2 } from "lucide-react";
@@ -21,7 +19,7 @@ function EditorForm() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const editId = searchParams?.get("id");
+  const editId = searchParams?.get("id"); // This acts as the slug in your DB setup
   const [mounted, setMounted] = useState(false);
 
   // ================= STATE =================
@@ -29,7 +27,7 @@ function EditorForm() {
   const [slug, setSlug] = useState("");
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("Politics"); 
-  const [isCustomCategory, setIsCustomCategory] = useState(false); // NEW STATE
+  const [isCustomCategory, setIsCustomCategory] = useState(false);
   const [tags, setTags] = useState("");
   const [readTime, setReadTime] = useState("");
   const [excerpt, setExcerpt] = useState("");
@@ -65,9 +63,11 @@ function EditorForm() {
 
     const fetchPost = async () => {
       try {
-        const snap = await getDoc(doc(db, "posts", editId));
-        if (snap.exists()) {
-          const d = snap.data();
+        const res = await fetch(`https://api.etomu.com/api/posts/${editId}`);
+        const data = await res.json();
+        
+        if (res.ok && data.post) {
+          const d = data.post;
           setTitle(d.title || "");
           setSlug(d.slug || editId);
           setContent(d.content || "");
@@ -80,7 +80,6 @@ function EditorForm() {
 
           const fetchedCategory = d.category || "Politics";
           setCategory(fetchedCategory);
-          // If the fetched category isn't in our standard list, show the custom input
           if (!PREDEFINED_CATEGORIES.includes(fetchedCategory)) {
             setIsCustomCategory(true);
           }
@@ -90,7 +89,7 @@ function EditorForm() {
             setPreviewUrl(d.coverImage);
           }
         }
-      } catch {
+      } catch (err) {
         alert("Failed to load article");
       } finally {
         setPageLoading(false);
@@ -100,32 +99,20 @@ function EditorForm() {
     fetchPost();
   }, [editId]);
 
-  // ================= CLOUDINARY UPLOAD =================
-  const uploadToCloudinary = async (file: File) => {
-    const sigRes = await fetch("/api/upload-image", { 
-      method: "POST",
-      headers: { "Content-Type": "application/json" }
-    });
-
-    if (!sigRes.ok) throw new Error("Signature API failed");
-
-    const sigData = await sigRes.json();
+  // ================= CLOUDFLARE R2 UPLOAD =================
+  const uploadToR2 = async (file: File) => {
     const fd = new FormData();
     fd.append("file", file);
-    fd.append("api_key", sigData.apiKey);
-    fd.append("timestamp", sigData.timestamp.toString());
-    fd.append("signature", sigData.signature);
-    fd.append("folder", "kabale_blog"); 
 
-    const uploadRes = await fetch(
-      `https://api.cloudinary.com/v1_1/${sigData.cloudName}/image/upload`, 
-      { method: "POST", body: fd }
-    );
+    const res = await fetch("https://api.etomu.com/api/upload", { 
+      method: "POST",
+      credentials: "include", // Crucial for verifyAuth()
+      body: fd
+    });
 
-    const uploadData = await uploadRes.json();
-    if (uploadData.error) throw new Error(uploadData.error.message);
-
-    return uploadData.secure_url;
+    if (!res.ok) throw new Error("Image upload failed");
+    const data = await res.json();
+    return data.url; 
   };
 
   // ================= SUBMIT =================
@@ -141,7 +128,7 @@ function EditorForm() {
     try {
       let finalImageUrl = existingImageUrl;
       if (imageFile) {
-        finalImageUrl = await uploadToCloudinary(imageFile);
+        finalImageUrl = await uploadToR2(imageFile);
       }
 
       const tagsArray = tags.split(",").map((t) => t.trim()).filter(Boolean);
@@ -158,25 +145,27 @@ function EditorForm() {
         metaDescription: metaDescription || excerpt,
         isFeatured,
         coverImage: finalImageUrl,
-        author: user?.displayName || "Etomu Reporter",
+        author: user?.name || "Etomu Reporter", // Fixed TS Error here
         authorEmail: user?.email,
-        updatedAt: serverTimestamp(),
-        published: true,
       };
 
-      if (editId) {
-        await updateDoc(doc(db, "posts", editId), postData);
-        alert("Article Updated ✅");
-      } else {
-        await setDoc(doc(db, "posts", slug), {
-          ...postData,
-          createdAt: serverTimestamp(),
-          views: 0,
-          likes: 0,
-        });
-        alert("Article Published 🎉");
-      }
-      router.push("/admin");
+      const endpoint = editId 
+        ? `https://api.etomu.com/api/posts/${editId}` 
+        : `https://api.etomu.com/api/posts`;
+      
+      const method = editId ? "PUT" : "POST";
+
+      const res = await fetch(endpoint, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(postData)
+      });
+
+      if (!res.ok) throw new Error("Failed to save post");
+
+      alert(editId ? "Article Updated ✅" : "Article Published 🎉");
+      router.push("/admin/posts");
     } catch (err: any) {
       alert("Error: " + err.message);
     } finally {
@@ -207,7 +196,6 @@ function EditorForm() {
       </div>
 
       <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
         {/* LEFT COLUMN: Main Content */}
         <div className="lg:col-span-2 space-y-6">
           <div className="bg-white p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
@@ -280,18 +268,15 @@ function EditorForm() {
 
           {/* Details & SEO */}
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
-            
-            {/* Native Select or Custom Input */}
             <div>
               <label className="block text-xs font-bold uppercase text-slate-500 mb-2">Category</label>
-              
               {!isCustomCategory ? (
                 <select
                   value={category}
                   onChange={(e) => {
                     if (e.target.value === "custom_option") {
                       setIsCustomCategory(true);
-                      setCategory(""); // Clear to allow typing
+                      setCategory(""); 
                     } else {
                       setCategory(e.target.value);
                     }
@@ -320,7 +305,7 @@ function EditorForm() {
                     type="button" 
                     onClick={() => {
                       setIsCustomCategory(false);
-                      setCategory("Politics"); // default fallback
+                      setCategory("Politics");
                     }}
                     className="px-4 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-medium transition"
                   >
@@ -384,7 +369,7 @@ function EditorForm() {
                 className="w-full p-3 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-600 resize-none"
               />
             </div>
-            
+
             <label className="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-100 transition">
               <input
                 type="checkbox"
