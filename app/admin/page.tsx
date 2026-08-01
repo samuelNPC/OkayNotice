@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/context/AuthContext";
 import Link from "next/link";
-import { FileText, LogOut, PlusCircle, Settings, Loader2 } from "lucide-react";
+import { FileText, LogOut, PlusCircle, Settings, Users, Loader2 } from "lucide-react";
 
 export default function AdminDashboard() {
   const { user, loading } = useAuth();
@@ -46,7 +46,7 @@ export default function AdminDashboard() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Create Post Card */}
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col items-center text-center space-y-4">
           <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center">
@@ -83,6 +83,26 @@ export default function AdminDashboard() {
               className="flex items-center justify-center w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 font-medium py-2.5 rounded-lg transition"
             >
               <Settings size={18} className="mr-2" /> Manage Posts
+            </Link>
+          </div>
+        </div>
+
+        {/* Contributor Submissions Card */}
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col items-center text-center space-y-4">
+          <div className="w-16 h-16 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center">
+            <Users size={32} />
+          </div>
+          <h2 className="text-xl font-bold text-slate-900">Submissions</h2>
+          <p className="text-slate-500 text-sm mb-4">
+            Review and approve incoming pitches from aspiring career writers.
+          </p>
+
+          <div className="flex flex-col w-full mt-auto pt-4">
+            <Link 
+              href="/admin/submissions" 
+              className="flex items-center justify-center w-full bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-800 font-medium py-2.5 rounded-lg transition"
+            >
+              <Users size={18} className="mr-2" /> Review Queue
             </Link>
           </div>
         </div>
