@@ -38,7 +38,7 @@ export default function ContactPage() {
           </div>
           <h3 className="text-xl font-black text-slate-900 mb-2">Email Us</h3>
           <p className="text-slate-600 font-medium">
-            hello@etomu.com
+            samuel@etomu.com
           </p>
         </div>
 
