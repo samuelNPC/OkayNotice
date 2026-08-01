@@ -8,7 +8,7 @@ import { useAuth } from "@/components/context/AuthContext";
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
-  
+
   // Custom Cloudflare Auth Check
   const { user, loading } = useAuth();
 
@@ -30,6 +30,7 @@ export default function Navbar() {
   const navLinks = [
     { name: "Home", href: "/" },
     { name: "Blog", href: "/blog" },
+    { name: "Write", href: "/write" },
     { name: "About", href: "/about" },
     { name: "Privacy", href: "/privacy" },
     { name: "Contact", href: "/contact" },
@@ -48,7 +49,7 @@ export default function Navbar() {
             </Link>
 
             {/* 2. Desktop Navigation */}
-            <nav className="hidden md:flex items-center space-x-8">
+            <nav className="hidden md:flex items-center space-x-6">
               {navLinks.map((link) => (
                 <Link 
                   key={link.name} 
@@ -59,28 +60,47 @@ export default function Navbar() {
                 </Link>
               ))}
 
-              {/* Desktop Admin Button */}
-              {!loading && user && (
-                <Link 
-                  href="/admin"
-                  className="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2 rounded-lg font-bold transition shadow-sm"
-                >
-                  Dashboard
-                </Link>
+              {/* Desktop Auth-dependent Button */}
+              {!loading && (
+                <div className="flex items-center space-x-3 pl-4 border-l border-slate-200">
+                  {user ? (
+                    <Link 
+                      href="/admin"
+                      className="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2 rounded-lg font-bold transition shadow-sm text-sm"
+                    >
+                      Dashboard
+                    </Link>
+                  ) : (
+                    <Link 
+                      href="/login"
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-bold transition shadow-sm text-sm"
+                    >
+                      Login
+                    </Link>
+                  )}
+                </div>
               )}
             </nav>
 
-            {/* 3. Mobile Right Side (Admin Button + Hamburger) */}
-            <div className="flex items-center gap-4 md:hidden relative z-50">
+            {/* 3. Mobile Right Side (Auth Button + Hamburger) */}
+            <div className="flex items-center gap-3 md:hidden relative z-50">
 
-              {/* Mobile Admin Button */}
-              {!loading && user && (
-                <Link 
-                  href="/admin"
-                  className="bg-slate-900 text-white px-3 py-1.5 rounded-md text-sm font-bold shadow-sm"
-                >
-                  Admin
-                </Link>
+              {!loading && (
+                user ? (
+                  <Link 
+                    href="/admin"
+                    className="bg-slate-900 text-white px-3 py-1.5 rounded-md text-xs font-bold shadow-sm"
+                  >
+                    Dashboard
+                  </Link>
+                ) : (
+                  <Link 
+                    href="/login"
+                    className="bg-blue-600 text-white px-3 py-1.5 rounded-md text-xs font-bold shadow-sm"
+                  >
+                    Login
+                  </Link>
+                )
               )}
 
               {/* Hamburger Button */}
@@ -126,15 +146,24 @@ export default function Navbar() {
             </Link>
           ))}
 
-          {/* Drawer Admin Button */}
-          {!loading && user && (
+          {/* Drawer Auth Button */}
+          {!loading && (
             <div className="pt-6 mt-4 border-t border-slate-100">
-              <Link 
-                href="/admin" 
-                className="block text-center text-lg font-bold text-white bg-blue-600 hover:bg-blue-700 px-4 py-3 rounded-xl shadow-sm transition-all"
-              >
-                Access Dashboard
-              </Link>
+              {user ? (
+                <Link 
+                  href="/admin" 
+                  className="block text-center text-lg font-bold text-white bg-slate-900 hover:bg-slate-800 px-4 py-3 rounded-xl shadow-sm transition-all"
+                >
+                  Dashboard
+                </Link>
+              ) : (
+                <Link 
+                  href="/login" 
+                  className="block text-center text-lg font-bold text-white bg-blue-600 hover:bg-blue-700 px-4 py-3 rounded-xl shadow-sm transition-all"
+                >
+                  Login / Sign In
+                </Link>
+              )}
             </div>
           )}
         </div>
