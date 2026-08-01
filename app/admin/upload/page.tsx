@@ -9,6 +9,14 @@ import MarkdownEditor from "@/components/admin/MarkdownEditor";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 
+const PREDEFINED_CATEGORIES = [
+  "Politics", "Football", "Sports", "Local News", "World News",
+  "Technology", "Artificial Intelligence", "Business", "Finance",
+  "Real Estate", "Education", "Environment", "Health & Wellness",
+  "Entertainment", "Lifestyle", "Startups", "Gadgets & Reviews",
+  "Crypto & Web3", "Programming", "Travel"
+];
+
 function EditorForm() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
@@ -16,11 +24,12 @@ function EditorForm() {
   const editId = searchParams?.get("id");
   const [mounted, setMounted] = useState(false);
 
-  // ================= STATE (ALL FIELDS RESTORED) =================
+  // ================= STATE =================
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
   const [content, setContent] = useState("");
-  const [category, setCategory] = useState("Politics"); // Updated default
+  const [category, setCategory] = useState("Politics"); 
+  const [isCustomCategory, setIsCustomCategory] = useState(false); // NEW STATE
   const [tags, setTags] = useState("");
   const [readTime, setReadTime] = useState("");
   const [excerpt, setExcerpt] = useState("");
@@ -47,7 +56,6 @@ function EditorForm() {
     }
   }, [user, authLoading, mounted, router]);
 
-  // Auto-generate slug
   const generateSlug = (text: string) =>
     text.toLowerCase().replace(/[^a-z0-9\s-]/g, "").trim().replace(/\s+/g, "-");
 
@@ -63,13 +71,19 @@ function EditorForm() {
           setTitle(d.title || "");
           setSlug(d.slug || editId);
           setContent(d.content || "");
-          setCategory(d.category || "Politics");
           setTags(d.tags ? d.tags.join(", ") : "");
           setReadTime(d.readTime || "");
           setExcerpt(d.excerpt || "");
           setMetaTitle(d.metaTitle || "");
           setMetaDescription(d.metaDescription || "");
           setIsFeatured(d.isFeatured || false);
+
+          const fetchedCategory = d.category || "Politics";
+          setCategory(fetchedCategory);
+          // If the fetched category isn't in our standard list, show the custom input
+          if (!PREDEFINED_CATEGORIES.includes(fetchedCategory)) {
+            setIsCustomCategory(true);
+          }
 
           if (d.coverImage) {
             setExistingImageUrl(d.coverImage);
@@ -88,23 +102,14 @@ function EditorForm() {
 
   // ================= CLOUDINARY UPLOAD =================
   const uploadToCloudinary = async (file: File) => {
-    console.log("1. Starting upload process for:", file.name);
-
-    // Use the RELATIVE route, starting with /
     const sigRes = await fetch("/api/upload-image", { 
       method: "POST",
       headers: { "Content-Type": "application/json" }
     });
 
-    if (!sigRes.ok) {
-      const errorBody = await sigRes.text(); // Get the actual error text
-      console.error("2. Signature API Failed:", errorBody);
-      throw new Error(`Signature API failed: ${sigRes.status} ${errorBody}`);
-    }
+    if (!sigRes.ok) throw new Error("Signature API failed");
 
     const sigData = await sigRes.json();
-    console.log("3. Signature received:", sigData);
-
     const fd = new FormData();
     fd.append("file", file);
     fd.append("api_key", sigData.apiKey);
@@ -112,19 +117,14 @@ function EditorForm() {
     fd.append("signature", sigData.signature);
     fd.append("folder", "kabale_blog"); 
 
-    console.log("4. Sending to Cloudinary...");
     const uploadRes = await fetch(
       `https://api.cloudinary.com/v1_1/${sigData.cloudName}/image/upload`, 
       { method: "POST", body: fd }
     );
 
     const uploadData = await uploadRes.json();
-    if (uploadData.error) {
-      console.error("5. Cloudinary Upload Error:", uploadData.error);
-      throw new Error(uploadData.error.message);
-    }
+    if (uploadData.error) throw new Error(uploadData.error.message);
 
-    console.log("6. Upload Success! URL:", uploadData.secure_url);
     return uploadData.secure_url;
   };
 
@@ -133,6 +133,7 @@ function EditorForm() {
     e.preventDefault();
     if (!title || !slug) return alert("Title and Slug required");
     if (!content) return alert("Content required");
+    if (!category.trim()) return alert("Category required");
     if (!editId && !imageFile && !existingImageUrl) return alert("Cover image required");
 
     setIsSubmitting(true);
@@ -149,7 +150,7 @@ function EditorForm() {
         title,
         slug,
         content,
-        category,
+        category: category.trim(),
         tags: tagsArray,
         readTime,
         excerpt,
@@ -196,8 +197,6 @@ function EditorForm() {
 
   return (
     <div className="max-w-6xl mx-auto py-10 px-4 sm:px-6">
-      
-      {/* Header */}
       <div className="flex items-center space-x-4 mb-8">
         <Link href="/admin" className="p-2 bg-white rounded-full border border-slate-200 hover:bg-slate-50 transition">
           <ArrowLeft size={20} className="text-slate-600" />
@@ -212,7 +211,6 @@ function EditorForm() {
         {/* LEFT COLUMN: Main Content */}
         <div className="lg:col-span-2 space-y-6">
           <div className="bg-white p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
-            
             <div>
               <label className="block text-sm font-bold text-slate-700 mb-2">Title</label>
               <input
@@ -248,13 +246,11 @@ function EditorForm() {
               <label className="block text-sm font-bold text-slate-700 mb-2">Article Content</label>
               <MarkdownEditor value={content} onChange={setContent} />
             </div>
-
           </div>
         </div>
 
         {/* RIGHT COLUMN: Settings & SEO */}
         <div className="space-y-6">
-          
           {/* Cover Image Upload */}
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
             <label className="block text-sm font-bold text-slate-700 mb-3">Cover Image</label>
@@ -285,40 +281,53 @@ function EditorForm() {
           {/* Details & SEO */}
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
             
-            {/* Category Select or Type */}
+            {/* Native Select or Custom Input */}
             <div>
               <label className="block text-xs font-bold uppercase text-slate-500 mb-2">Category</label>
-              <input
-                type="text"
-                list="category-options"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                placeholder="Select or type a category..."
-                className="w-full p-3 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-600 bg-white"
-                required
-              />
-              <datalist id="category-options">
-                <option value="Politics" />
-                <option value="Football" />
-                <option value="Sports" />
-                <option value="Local News" />
-                <option value="World News" />
-                <option value="Technology" />
-                <option value="Artificial Intelligence" />
-                <option value="Business" />
-                <option value="Finance" />
-                <option value="Real Estate" />
-                <option value="Education" />
-                <option value="Environment" />
-                <option value="Health & Wellness" />
-                <option value="Entertainment" />
-                <option value="Lifestyle" />
-                <option value="Startups" />
-                <option value="Gadgets & Reviews" />
-                <option value="Crypto & Web3" />
-                <option value="Programming" />
-                <option value="Travel" />
-              </datalist>
+              
+              {!isCustomCategory ? (
+                <select
+                  value={category}
+                  onChange={(e) => {
+                    if (e.target.value === "custom_option") {
+                      setIsCustomCategory(true);
+                      setCategory(""); // Clear to allow typing
+                    } else {
+                      setCategory(e.target.value);
+                    }
+                  }}
+                  className="w-full p-3 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-600 bg-white cursor-pointer"
+                  required
+                >
+                  {PREDEFINED_CATEGORIES.map((cat) => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                  <option disabled>──────────</option>
+                  <option value="custom_option" className="font-bold text-blue-600">➕ Type a Custom Category...</option>
+                </select>
+              ) : (
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    placeholder="Type custom category..."
+                    className="w-full p-3 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-600 bg-white"
+                    required
+                    autoFocus
+                  />
+                  <button 
+                    type="button" 
+                    onClick={() => {
+                      setIsCustomCategory(false);
+                      setCategory("Politics"); // default fallback
+                    }}
+                    className="px-4 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-medium transition"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
             </div>
 
             <div>
@@ -407,7 +416,6 @@ function EditorForm() {
   );
 }
 
-// Wrapper to satisfy Next.js Suspense boundary for useSearchParams
 export default function CreatePostPage() {
   return (
     <Suspense fallback={
