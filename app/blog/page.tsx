@@ -1,7 +1,5 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { collection, getDocs, query, orderBy, where } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import PostCard from "@/components/cards/PostCard";
 import FeaturedCarousel from "@/components/home/FeaturedCarousel";
 import { ArrowLeft, ArrowRight } from "lucide-react";
@@ -11,35 +9,23 @@ export const metadata: Metadata = {
   description: "Read the latest updates on Uganda tech, finance, mobile money, and gadget reviews on Etomu News.",
 };
 
-export const revalidate = 60;
-
 const POSTS_PER_PAGE = 9;
-
-// Safe serialization to prevent Server Component crashes with Firebase Timestamps
-const serializeDoc = (doc: any) => {
-  const data = doc.data();
-  return {
-    id: doc.id,
-    ...data,
-    createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : null,
-  };
-};
 
 async function getBlogData() {
   try {
-    const postsRef = collection(db, "posts");
-    
-    // 1. Fetch All Posts (Ordered Newest to Oldest)
-    const allQuery = query(postsRef, orderBy("createdAt", "desc"));
-    const allSnapshot = await getDocs(allQuery);
-    const allPosts = allSnapshot.docs.map(serializeDoc);
+    // Run both fetches in parallel for maximum speed
+    const [allRes, featuredRes] = await Promise.all([
+      fetch("https://api.etomu.com/api/posts", { next: { revalidate: 60 } }),
+      fetch("https://api.etomu.com/api/posts?featured=true", { next: { revalidate: 60 } })
+    ]);
 
-    // 2. Fetch Featured Posts (for the Carousel)
-    const featuredQuery = query(postsRef, where("isFeatured", "==", true));
-    const featuredSnapshot = await getDocs(featuredQuery);
-    const featuredPosts = featuredSnapshot.docs.map(serializeDoc);
+    const allData = await allRes.json();
+    const featuredData = await featuredRes.json();
 
-    return { allPosts, featuredPosts };
+    return { 
+      allPosts: allData.posts || [], 
+      featuredPosts: featuredData.posts || [] 
+    };
   } catch (error) {
     console.error("Error fetching posts:", error);
     return { allPosts: [], featuredPosts: [] };
@@ -62,7 +48,7 @@ export default async function BlogPage({
   return (
     <div className="bg-white min-h-screen text-slate-900 pb-20">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-10">
-        
+
         {/* UPGRADED HERO SECTION */}
         <section className="border-b border-slate-200 pb-10 mb-10">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight mb-4">
@@ -79,10 +65,10 @@ export default async function BlogPage({
           </div>
         ) : (
           <div className="space-y-12">
-            
+
             {/* FIRST BATCH OF POSTS (Up to 3) */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-              {currentPosts.slice(0, 3).map(post => (
+              {currentPosts.slice(0, 3).map((post: any) => (
                 <PostCard key={post.id} post={post} />
               ))}
             </div>
@@ -100,7 +86,7 @@ export default async function BlogPage({
             {/* SECOND BATCH OF POSTS (The remaining 6 for this page) */}
             {currentPosts.length > 3 && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                {currentPosts.slice(3).map(post => (
+                {currentPosts.slice(3).map((post: any) => (
                   <PostCard key={post.id} post={post} />
                 ))}
               </div>
@@ -121,7 +107,7 @@ export default async function BlogPage({
                 Previous Page
               </Link>
             ) : (
-              <div /> /* Empty div to push 'Next' button to the right */
+              <div /> 
             )}
 
             <span className="text-sm font-medium text-slate-500">
