@@ -17,8 +17,8 @@ export default function Footer() {
             </li>
             <li className="flex items-start">
               <Mail size={18} className="text-blue-600 mr-3 mt-0.5 shrink-0" />
-              <a href="mailto:hello@etomu.com" className="hover:text-blue-600 transition-colors">
-                hello@etomu.com
+              <a href="mailto:samuel@etomu.com" className="hover:text-blue-600 transition-colors">
+                samuel@etomu.com
               </a>
             </li>
             <li className="flex items-start">
