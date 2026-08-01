@@ -1,6 +1,4 @@
 import { MetadataRoute } from "next";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 
 // Define your base URL
 const BASE_URL = "https://news.etomu.com";
@@ -26,33 +24,40 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "daily",
       priority: 0.8,
     },
-    
   ];
 
-  // 2. Fetch Dynamic Routes (Blog Posts) from Firebase
+  // 2. Fetch Dynamic Routes (Blog Posts) from Cloudflare API
   let dynamicRoutes: MetadataRoute.Sitemap = [];
 
   try {
-    const postsRef = collection(db, "posts");
-    const snapshot = await getDocs(postsRef);
-
-    dynamicRoutes = snapshot.docs.map((doc) => {
-      const post = doc.data();
-      // Safely handle Firestore Timestamps for the lastModified date
-      const lastModified = post.updatedAt?.toDate() 
-        || post.createdAt?.toDate() 
-        || new Date();
-
-      return {
-        url: `${BASE_URL}/blog/${post.slug}`,
-        lastModified: lastModified,
-        changeFrequency: "weekly",
-        priority: 0.7, // Slightly lower than main pages, standard for articles
-      };
+    // Fetch posts (cached for 1 hour to keep sitemap generation lightning fast)
+    const res = await fetch("https://api.etomu.com/api/posts", { 
+      next: { revalidate: 3600 } 
     });
+
+    if (res.ok) {
+      const data = await res.json();
+      const posts = data.posts || [];
+
+      dynamicRoutes = posts.map((post: any) => {
+        // Parse standard date strings from your SQLite database
+        const lastModified = post.updatedAt 
+          ? new Date(post.updatedAt) 
+          : post.createdAt 
+            ? new Date(post.createdAt) 
+            : new Date();
+
+        return {
+          url: `${BASE_URL}/blog/${post.slug}`,
+          lastModified: lastModified,
+          changeFrequency: "weekly",
+          priority: 0.7, // Slightly lower than main pages, standard for articles
+        };
+      });
+    }
   } catch (error) {
     console.error("Error generating sitemap for posts:", error);
-    // If Firebase fails, we still return the static routes so Google doesn't penalize the site
+    // If the API fails, we still return the static routes so Google doesn't penalize the site
   }
 
   // 3. Combine and return
