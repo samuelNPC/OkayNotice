@@ -14,7 +14,7 @@ export default function ContactPage() {
           Get in Touch
         </h1>
         <p className="text-lg text-slate-600 max-w-2xl mx-auto mb-8 leading-relaxed">
-          Have a question about a tech deal, a suggestion for a new calculator tool, or want to partner with us? We would love to hear from you.
+          Have a question about a tech deal, a suggestion  or want to partner with us? We would love to hear from you.
         </p>
         
         {/* Founder & Kabale Online Banner */}
