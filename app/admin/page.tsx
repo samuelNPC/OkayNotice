@@ -6,7 +6,7 @@ import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useAuth } from "@/components/context/AuthContext";
 import Link from "next/link";
-import { FileText, LogOut, ShoppingBag, PlusCircle, Settings } from "lucide-react";
+import { FileText, LogOut, PlusCircle, Settings } from "lucide-react";
 
 export default function AdminDashboard() {
   const { user, loading } = useAuth();
@@ -44,38 +44,42 @@ export default function AdminDashboard() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Blog Management Card */}
+        {/* Create Post Card */}
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col items-center text-center space-y-4">
           <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center">
-            <FileText size={32} />
+            <PlusCircle size={32} />
           </div>
-          <h2 className="text-xl font-bold text-slate-900">Blog Posts</h2>
-          <p className="text-slate-500 text-sm mb-4">Write, edit, and publish your tech and finance articles to drive SEO traffic.</p>
-          
-          <div className="flex flex-col w-full space-y-2 mt-auto">
-            <Link href="/admin/posts" className="flex items-center justify-center w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 text-blue-600 font-medium py-2 rounded-lg transition">
-              <Settings size={18} className="mr-2" /> Manage Posts
-            </Link>
-            <Link href="/admin/upload" className="flex items-center justify-center w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition">
-              <PlusCircle size={18} className="mr-2" /> Create New Post
+          <h2 className="text-xl font-bold text-slate-900">Create New Post</h2>
+          <p className="text-slate-500 text-sm mb-4">
+            Write and publish new tech and finance articles to drive SEO traffic.
+          </p>
+
+          <div className="flex flex-col w-full mt-auto pt-4">
+            <Link 
+              href="/admin/upload" 
+              className="flex items-center justify-center w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition"
+            >
+              <PlusCircle size={18} className="mr-2" /> Create Post
             </Link>
           </div>
         </div>
 
-        {/* Deals Management Card */}
+        {/* Manage Posts Card */}
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col items-center text-center space-y-4">
-          <div className="w-16 h-16 bg-green-50 text-green-600 rounded-full flex items-center justify-center">
-            <ShoppingBag size={32} />
+          <div className="w-16 h-16 bg-slate-50 text-slate-600 rounded-full flex items-center justify-center">
+            <FileText size={32} />
           </div>
-          <h2 className="text-xl font-bold text-slate-900">Kabale Deals</h2>
-          <p className="text-slate-500 text-sm mb-4">Curate your top gadget deals and redirect users to Kabale Online.</p>
-          
-          <div className="flex flex-col w-full space-y-2 mt-auto">
-            <Link href="/admin/deals/manage" className="flex items-center justify-center w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 text-green-600 font-medium py-2 rounded-lg transition">
-              <Settings size={18} className="mr-2" /> Manage Deals
-            </Link>
-            <Link href="/admin/deals" className="flex items-center justify-center w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 rounded-lg transition">
-              <PlusCircle size={18} className="mr-2" /> Add New Deal
+          <h2 className="text-xl font-bold text-slate-900">Manage Posts</h2>
+          <p className="text-slate-500 text-sm mb-4">
+            Edit, review, or delete your existing published articles and drafts.
+          </p>
+
+          <div className="flex flex-col w-full mt-auto pt-4">
+            <Link 
+              href="/admin/posts" 
+              className="flex items-center justify-center w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 font-medium py-2.5 rounded-lg transition"
+            >
+              <Settings size={18} className="mr-2" /> Manage Posts
             </Link>
           </div>
         </div>
