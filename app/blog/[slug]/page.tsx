@@ -96,7 +96,8 @@ export default async function SinglePostPage({ params }: { params: Promise<{ slu
 
   const postDate = new Date(post.createdAt || Date.now());
   const timeAgo = postDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  const defaultAvatar = "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg";
+  const authorName = post.author || "Etomu Reporter";
+  const authorProfileUrl = `/author/${encodeURIComponent(authorName)}`;
 
   return (
     <div className="bg-white min-h-screen pb-24">
@@ -126,15 +127,23 @@ export default async function SinglePostPage({ params }: { params: Promise<{ slu
 
         <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-6">
           <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 overflow-hidden bg-slate-100 border border-slate-200">
-              <img 
-                src={post.authorImage || defaultAvatar} 
-                alt="Editor" 
-                className="w-full h-full object-cover" 
-              />
-            </div>
+            <Link href={authorProfileUrl} className="block group">
+              <div className="w-12 h-12 rounded-full overflow-hidden bg-blue-50 border border-slate-200 flex items-center justify-center font-bold text-blue-600 shadow-sm group-hover:border-blue-400 transition">
+                {post.authorImage ? (
+                  <img 
+                    src={post.authorImage} 
+                    alt={authorName} 
+                    className="w-full h-full object-cover" 
+                  />
+                ) : (
+                  <span>{authorName.charAt(0).toUpperCase()}</span>
+                )}
+              </div>
+            </Link>
             <div>
-              <p className="font-bold text-slate-900 text-sm">{post.author || "Etomu Reporter"}</p>
+              <Link href={authorProfileUrl} className="font-bold text-slate-900 text-sm hover:text-blue-600 transition-colors block">
+                {authorName}
+              </Link>
               <p className="text-slate-500 text-xs">
                 {timeAgo} {post.readTime && <span className="mx-1 font-bold text-slate-300">•</span>} <span className="text-blue-600 font-medium">{post.readTime}</span>
               </p>
