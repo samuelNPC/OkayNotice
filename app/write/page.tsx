@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/context/AuthContext";
 import MarkdownEditor from "@/components/admin/MarkdownEditor";
-import { ArrowLeft, Loader2, Send } from "lucide-react";
+import { ArrowLeft, Loader2, Send, Info, X } from "lucide-react"; // Added Info and X icons
 import Link from "next/link";
 
 const PREDEFINED_CATEGORIES = [
@@ -26,21 +26,26 @@ export default function ContributorSubmitPage() {
   const [excerpt, setExcerpt] = useState("");
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("Technology");
-  
+
   // Image State
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState("");
 
-  // Status State
+  // Status & UI State
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
+  const [showHelp, setShowHelp] = useState(false); // 🚨 New state for the dropdown guide
 
-    useEffect(() => {
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Force login if not authenticated
+  useEffect(() => {
     if (mounted && !authLoading && !user) {
-      router.push("/login"); // 🚨 Changed from /admin/login
+      router.push("/login"); 
     }
   }, [user, authLoading, mounted, router]);
-
 
   // Auto-generate slug from title
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -114,7 +119,7 @@ export default function ContributorSubmitPage() {
       setContent("");
       setImageFile(null);
       setPreviewUrl("");
-      
+
       setTimeout(() => router.push("/blog"), 3000);
     } catch (error: any) {
       setMessage({ type: "error", text: "Failed to submit story. Try again later." });
@@ -136,7 +141,7 @@ export default function ContributorSubmitPage() {
 
   return (
     <div className="max-w-4xl mx-auto py-12 px-4 sm:px-6">
-            <div className="flex items-center space-x-4 mb-8">
+      <div className="flex items-center space-x-4 mb-8">
         <Link href="/dashboard" className="p-2 bg-white rounded-full border border-slate-200 hover:bg-slate-50 transition">
           <ArrowLeft size={20} className="text-slate-600" />
         </Link>
@@ -235,15 +240,67 @@ export default function ContributorSubmitPage() {
             <p className="text-xs text-slate-400 mt-1 text-right">{excerpt.length}/160 characters</p>
           </div>
 
-          <div>
-            <label className="block text-sm font-bold text-slate-700 mb-1">Article Content (Markdown)</label>
+          {/* 🚨 MARKDOWN EDITOR & HELP DROPDOWN */}
+          <div className="flex flex-col">
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-bold text-slate-700">Article Content (Markdown)</label>
+              
+              {/* Toggle Button */}
+              <button 
+                type="button" 
+                onClick={() => setShowHelp(!showHelp)}
+                className="text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-1 transition"
+              >
+                <Info size={14} />
+                {showHelp ? "Hide Markdown Guide" : "How does the editor work?"}
+              </button>
+            </div>
+
+            {/* Expandable Help Box */}
+            <div className={`overflow-hidden transition-all duration-300 ease-in-out ${showHelp ? 'max-h-[500px] mb-4 opacity-100' : 'max-h-0 opacity-0'}`}>
+              <div className="bg-blue-50 border border-blue-100 rounded-xl p-5 text-sm text-slate-700 shadow-inner">
+                <h4 className="font-bold text-slate-900 mb-3">Quick Markdown Formatting Guide</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
+                  <div>
+                    <span className="font-semibold text-slate-900">Headings:</span>
+                    <code className="block bg-white px-2 py-1 rounded text-blue-600 mt-1">## Heading 2</code>
+                    <code className="block bg-white px-2 py-1 rounded text-blue-600 mt-1">### Heading 3</code>
+                  </div>
+                  <div>
+                    <span className="font-semibold text-slate-900">Emphasis:</span>
+                    <code className="block bg-white px-2 py-1 rounded text-blue-600 mt-1">**Bold text**</code>
+                    <code className="block bg-white px-2 py-1 rounded text-blue-600 mt-1">*Italic text*</code>
+                  </div>
+                  <div>
+                    <span className="font-semibold text-slate-900">Lists:</span>
+                    <code className="block bg-white px-2 py-1 rounded text-blue-600 mt-1">- Bullet item 1</code>
+                    <code className="block bg-white px-2 py-1 rounded text-blue-600 mt-1">1. Numbered item 1</code>
+                  </div>
+                  <div>
+                    <span className="font-semibold text-slate-900">Links & Images:</span>
+                    <code className="block bg-white px-2 py-1 rounded text-blue-600 mt-1">[Link Text](url)</code>
+                    <p className="text-xs mt-1 text-slate-500">For images, use the picture icon in the editor toolbar.</p>
+                  </div>
+                </div>
+                
+                {/* Close Button inside the box */}
+                <button 
+                  type="button" 
+                  onClick={() => setShowHelp(false)}
+                  className="mt-4 flex items-center justify-center gap-1.5 w-full sm:w-auto px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-800 font-semibold text-xs rounded-lg transition"
+                >
+                  <X size={14} /> Close Guide
+                </button>
+              </div>
+            </div>
+
             <MarkdownEditor value={content} onChange={(val) => setContent(val)} />
           </div>
 
           <button 
             type="submit" 
             disabled={isSubmitting} 
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold py-4 rounded-xl transition flex items-center justify-center space-x-2 shadow-lg shadow-blue-600/20"
+            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold py-4 rounded-xl transition flex items-center justify-center space-x-2 shadow-lg shadow-blue-600/20 mt-4"
           >
             {isSubmitting ? (
               <>
