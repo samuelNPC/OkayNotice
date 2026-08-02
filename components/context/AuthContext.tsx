@@ -1,8 +1,9 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { useUser } from "@clerk/nextjs";
 
-// Matches your D1 database user structure
+// Matches your original D1 database user structure so you don't have to 
+// rewrite any of your other frontend components!
 interface UserProfile {
   id: string;
   name: string;
@@ -11,54 +12,34 @@ interface UserProfile {
   role?: string;
 }
 
-interface AuthContextType {
-  user: UserProfile | null;
-  loading: boolean;
-  refreshUser: () => Promise<void>;
-}
+export const useAuth = () => {
+  // Pull directly from Clerk's extremely fast local cache
+  const { isLoaded, isSignedIn, user: clerkUser } = useUser();
 
-const AuthContext = createContext<AuthContextType>({ 
-  user: null, 
-  loading: true,
-  refreshUser: async () => {} 
-});
+  // Translate Clerk's data structure into your Etomu structure
+  const mappedUser: UserProfile | null = isSignedIn && clerkUser ? {
+    id: clerkUser.id,
+    name: clerkUser.fullName || "Etomu User",
+    email: clerkUser.primaryEmailAddress?.emailAddress || "",
+    image: clerkUser.imageUrl,
+    role: (clerkUser.publicMetadata?.role as string) || "Author",
+  } : null;
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  const fetchUser = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch("https://api.etomu.com/api/users/me", {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include", // 🚨 Crucial: Tells the browser to send your Auth.js cookie
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setUser(data.user);
-      } else {
-        setUser(null);
-      }
-    } catch (error) {
-      console.error("Failed to verify session with Etomu API:", error);
-      setUser(null);
-    } finally {
-      setLoading(false);
+  const refreshUser = async () => {
+    if (clerkUser) {
+      await clerkUser.reload();
     }
   };
 
-  useEffect(() => {
-    fetchUser();
-  }, []);
-
-  return (
-    <AuthContext.Provider value={{ user, loading, refreshUser: fetchUser }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return {
+    user: mappedUser,
+    loading: !isLoaded,
+    refreshUser,
+  };
 };
 
-export const useAuth = () => useContext(AuthContext);
+// We export a dummy AuthProvider that just returns children.
+// This prevents errors just in case you still have <AuthProvider> wrapping any layouts!
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  return <>{children}</>;
+};
