@@ -35,16 +35,12 @@ export default function ContributorSubmitPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // Force login if not authenticated
-  useEffect(() => {
+    useEffect(() => {
     if (mounted && !authLoading && !user) {
-      router.push("/admin/login"); // Or your general login page route
+      router.push("/login"); // 🚨 Changed from /admin/login
     }
   }, [user, authLoading, mounted, router]);
+
 
   // Auto-generate slug from title
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -140,10 +136,11 @@ export default function ContributorSubmitPage() {
 
   return (
     <div className="max-w-4xl mx-auto py-12 px-4 sm:px-6">
-      <div className="flex items-center space-x-4 mb-8">
-        <Link href="/" className="p-2 bg-white rounded-full border border-slate-200 hover:bg-slate-50 transition">
+            <div className="flex items-center space-x-4 mb-8">
+        <Link href="/dashboard" className="p-2 bg-white rounded-full border border-slate-200 hover:bg-slate-50 transition">
           <ArrowLeft size={20} className="text-slate-600" />
         </Link>
+
         <div>
           <h1 className="text-2xl font-black text-slate-900">Build Your Career with Etomu</h1>
           <p className="text-sm text-slate-500">Submit your article draft to the Etomu Editorial Board for review.</p>
