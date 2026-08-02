@@ -9,7 +9,7 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
 
-  // Custom Cloudflare Auth Check
+  // Custom Translation Hook pulling Clerk data
   const { user, loading } = useAuth();
 
   useEffect(() => {
@@ -64,12 +64,21 @@ export default function Navbar() {
               {!loading && (
                 <div className="flex items-center space-x-3 pl-4 border-l border-slate-200">
                   {user ? (
-                    <Link 
-                      href="/admin"
-                      className="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2 rounded-lg font-bold transition shadow-sm text-sm"
-                    >
-                      Dashboard
-                    </Link>
+                    user.role === "admin" ? (
+                      <Link 
+                        href="/admin"
+                        className="bg-amber-600 hover:bg-amber-700 text-white px-5 py-2 rounded-lg font-bold transition shadow-sm text-sm"
+                      >
+                        Admin Portal
+                      </Link>
+                    ) : (
+                      <Link 
+                        href="/dashboard"
+                        className="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2 rounded-lg font-bold transition shadow-sm text-sm"
+                      >
+                        Dashboard
+                      </Link>
+                    )
                   ) : (
                     <Link 
                       href="/login"
@@ -87,12 +96,21 @@ export default function Navbar() {
 
               {!loading && (
                 user ? (
-                  <Link 
-                    href="/admin"
-                    className="bg-slate-900 text-white px-3 py-1.5 rounded-md text-xs font-bold shadow-sm"
-                  >
-                    Dashboard
-                  </Link>
+                  user.role === "admin" ? (
+                    <Link 
+                      href="/admin"
+                      className="bg-amber-600 text-white px-3 py-1.5 rounded-md text-xs font-bold shadow-sm"
+                    >
+                      Admin
+                    </Link>
+                  ) : (
+                    <Link 
+                      href="/dashboard"
+                      className="bg-slate-900 text-white px-3 py-1.5 rounded-md text-xs font-bold shadow-sm"
+                    >
+                      Dashboard
+                    </Link>
+                  )
                 ) : (
                   <Link 
                     href="/login"
@@ -150,12 +168,21 @@ export default function Navbar() {
           {!loading && (
             <div className="pt-6 mt-4 border-t border-slate-100">
               {user ? (
-                <Link 
-                  href="/admin" 
-                  className="block text-center text-lg font-bold text-white bg-slate-900 hover:bg-slate-800 px-4 py-3 rounded-xl shadow-sm transition-all"
-                >
-                  Dashboard
-                </Link>
+                user.role === "admin" ? (
+                  <Link 
+                    href="/admin" 
+                    className="block text-center text-lg font-bold text-white bg-amber-600 hover:bg-amber-700 px-4 py-3 rounded-xl shadow-sm transition-all"
+                  >
+                    Admin Portal
+                  </Link>
+                ) : (
+                  <Link 
+                    href="/dashboard" 
+                    className="block text-center text-lg font-bold text-white bg-slate-900 hover:bg-slate-800 px-4 py-3 rounded-xl shadow-sm transition-all"
+                  >
+                    Dashboard
+                  </Link>
+                )
               ) : (
                 <Link 
                   href="/login" 
