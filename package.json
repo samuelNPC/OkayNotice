@@ -1,5 +1,5 @@
 {
-  "name": "uganda-fintech-hub",
+  "name": "Etomunews",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@clerk/nextjs": "^5.0.0",
     "@tailwindcss/typography": "^0.5.12",
     "@uiw/react-md-editor": "^4.0.4",
     "@vercel/analytics": "^1.2.2",
