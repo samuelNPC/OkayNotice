@@ -2,19 +2,17 @@
 
 import { useUser, useClerk } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
+import Link from "next/link"; // 🚨 Added Link import
 
 export default function Dashboard() {
   const router = useRouter();
-  // 🚨 Clerk's native hooks handle all the loading and session states!
   const { isLoaded, isSignedIn, user } = useUser();
   const { signOut } = useClerk();
 
   const handleSignOut = () => {
-    // Clerk handles the secure sign out and redirects to the login page
     signOut({ redirectUrl: "/login" });
   };
 
-  // 1. Show loading state while Clerk verifies the session
   if (!isLoaded) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
@@ -26,14 +24,10 @@ export default function Dashboard() {
     );
   }
 
-  // 2. If Clerk finishes loading and they aren't signed in, don't render the page
-  // (Your middleware.ts will automatically catch this and redirect them)
   if (!isSignedIn) {
     return null;
   }
 
-  // 3. Optional: If you eventually want to assign admin roles in Clerk, you can check it here.
-  // For now, it defaults to Author.
   const userRole = user?.publicMetadata?.role as string || "Author";
 
   return (
@@ -76,23 +70,19 @@ export default function Dashboard() {
           </button>
         </div>
 
-        {/* QUICK STATS & BLOG DASHBOARD */}
+        {/* QUICK STATS */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
             <h3 className="text-sm font-medium text-slate-500">Published Posts</h3>
             <p className="text-3xl font-bold text-slate-900 mt-2">0</p>
           </div>
-
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
             <h3 className="text-sm font-medium text-slate-500">Drafts</h3>
             <p className="text-3xl font-bold text-slate-900 mt-2">0</p>
           </div>
-
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
             <h3 className="text-sm font-medium text-slate-500">Account Type</h3>
-            <p className="text-lg font-bold text-slate-900 mt-2 capitalize">
-              {userRole}
-            </p>
+            <p className="text-lg font-bold text-slate-900 mt-2 capitalize">{userRole}</p>
           </div>
         </div>
 
@@ -101,18 +91,30 @@ export default function Dashboard() {
           <h2 className="text-lg font-bold text-slate-900">Blog Management</h2>
 
           <div className="flex flex-wrap gap-3">
-            <button className="bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm px-5 py-2.5 rounded-lg transition">
+            {/* 🚨 Updated to Link to /write */}
+            <Link 
+              href="/write" 
+              className="bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm px-5 py-2.5 rounded-lg transition"
+            >
               + Write New Post
-            </button>
-            <button className="bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold text-sm px-5 py-2.5 rounded-lg transition">
+            </Link>
+
+            {/* 🚨 Updated to Link to /dashboard/articles */}
+            <Link 
+              href="/dashboard/articles" 
+              className="bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold text-sm px-5 py-2.5 rounded-lg transition"
+            >
               My Articles
-            </button>
+            </Link>
 
             {/* ADMIN-ONLY ACTION */}
             {userRole === "admin" && (
-              <button className="bg-amber-600 hover:bg-amber-700 text-white font-semibold text-sm px-5 py-2.5 rounded-lg transition">
+              <Link 
+                href="/admin" 
+                className="bg-amber-600 hover:bg-amber-700 text-white font-semibold text-sm px-5 py-2.5 rounded-lg transition"
+              >
                 ⚡ Access Admin Portal
-              </button>
+              </Link>
             )}
           </div>
         </div>
