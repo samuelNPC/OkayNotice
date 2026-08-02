@@ -1,7 +1,7 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 
-// Specify which routes require the user to be logged in
-const isProtectedRoute = createRouteMatcher(['/dashboard(.*)'])
+// 🚨 Added /admin(.*) so Clerk protects both your public dashboard and admin panel
+const isProtectedRoute = createRouteMatcher(['/dashboard(.*)', '/admin(.*)'])
 
 export default clerkMiddleware((auth, req) => {
   if (isProtectedRoute(req)) auth().protect()
