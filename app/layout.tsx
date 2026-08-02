@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
+import { ClerkProvider } from "@clerk/nextjs"; // 🚨 Added Clerk Provider
 
-import { AuthProvider } from "@/components/context/AuthContext";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import AmbientBackground from "@/components/home/AmbientBackground";
@@ -89,20 +89,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${inter.className} bg-slate-50 text-slate-900 flex flex-col min-h-screen relative`}>
-        <AmbientBackground />
-        
-        <AuthProvider>
+    // 🚨 Wrap the entire HTML output in ClerkProvider
+    <ClerkProvider>
+      <html lang="en">
+        <body className={`${inter.className} bg-slate-50 text-slate-900 flex flex-col min-h-screen relative`}>
+          <AmbientBackground />
+          
           <Navbar />
           <main className="flex-grow w-full relative z-10">
             {children}
           </main>
           <Footer />
-        </AuthProvider>
 
-        <Analytics />
-      </body>
-    </html>
+          <Analytics />
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
