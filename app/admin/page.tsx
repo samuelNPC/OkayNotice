@@ -3,23 +3,25 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/context/AuthContext";
+import { useClerk } from "@clerk/nextjs"; // 🚨 Imported Clerk
 import Link from "next/link";
 import { FileText, LogOut, PlusCircle, Settings, Users, Loader2 } from "lucide-react";
 
 export default function AdminDashboard() {
   const { user, loading } = useAuth();
+  const { signOut } = useClerk(); // 🚨 Added Clerk's signOut hook
   const router = useRouter();
 
   useEffect(() => {
     if (!loading && !user) {
-      router.push("/login"); // Pointing to your custom login page
+      router.push("/login");
     }
   }, [user, loading, router]);
 
-    const handleLogout = () => {
-    window.location.href = "https://api.etomu.com/api/auth/logout";
+  const handleLogout = () => {
+    // 🚨 Clean, secure Clerk logout
+    signOut({ redirectUrl: "/login" });
   };
-
 
   if (loading || !user) {
     return (
