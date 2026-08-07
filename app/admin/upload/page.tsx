@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/components/context/AuthContext";
+import { useAuth as useClerkAuth } from "@clerk/nextjs"; // 🚨 Imported Clerk Auth for the token
 import MarkdownEditor from "@/components/admin/MarkdownEditor"; 
 import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
@@ -17,9 +18,10 @@ const PREDEFINED_CATEGORIES = [
 
 function EditorForm() {
   const { user, loading: authLoading } = useAuth();
+  const { getToken } = useClerkAuth(); // 🚨 Extract the getToken function
   const router = useRouter();
   const searchParams = useSearchParams();
-  const editId = searchParams?.get("id"); // This acts as the slug in your DB setup
+  const editId = searchParams?.get("id");
   const [mounted, setMounted] = useState(false);
 
   // ================= STATE =================
@@ -50,7 +52,7 @@ function EditorForm() {
   // Security Check
   useEffect(() => {
     if (mounted && !authLoading && !user) {
-      router.push("/admin/login");
+      router.push("/login"); // Updated to the public login route
     }
   }, [user, authLoading, mounted, router]);
 
@@ -65,7 +67,7 @@ function EditorForm() {
       try {
         const res = await fetch(`https://api.etomu.com/api/posts/${editId}`);
         const data = await res.json();
-        
+
         if (res.ok && data.post) {
           const d = data.post;
           setTitle(d.title || "");
@@ -104,9 +106,13 @@ function EditorForm() {
     const fd = new FormData();
     fd.append("file", file);
 
+    const token = await getToken(); // 🚨 Retrieve the Clerk token
+
     const res = await fetch("https://api.etomu.com/api/upload", { 
       method: "POST",
-      credentials: "include", // Crucial for verifyAuth()
+      headers: {
+        Authorization: `Bearer ${token}` // 🚨 Send the token to Hono
+      },
       body: fd
     });
 
@@ -145,20 +151,23 @@ function EditorForm() {
         metaDescription: metaDescription || excerpt,
         isFeatured,
         coverImage: finalImageUrl,
-        author: user?.name || "Etomu Reporter", // Fixed TS Error here
+        author: user?.name || "Etomu Reporter",
         authorEmail: user?.email,
       };
 
       const endpoint = editId 
         ? `https://api.etomu.com/api/posts/${editId}` 
         : `https://api.etomu.com/api/posts`;
-      
+
       const method = editId ? "PUT" : "POST";
+      const token = await getToken(); // 🚨 Retrieve the Clerk token
 
       const res = await fetch(endpoint, {
         method,
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}` // 🚨 Send the token to Hono
+        },
         body: JSON.stringify(postData)
       });
 
