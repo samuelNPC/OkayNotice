@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/context/AuthContext";
+import { useAuth as useClerkAuth } from "@clerk/nextjs"; // 🚨 Imported Clerk Auth for the token
 import MarkdownEditor from "@/components/admin/MarkdownEditor";
-import { ArrowLeft, Loader2, Send, Info, X } from "lucide-react"; // Added Info and X icons
+import { ArrowLeft, Loader2, Send, Info, X } from "lucide-react"; 
 import Link from "next/link";
 
 const PREDEFINED_CATEGORIES = [
@@ -17,6 +18,7 @@ const PREDEFINED_CATEGORIES = [
 
 export default function ContributorSubmitPage() {
   const { user, loading: authLoading } = useAuth();
+  const { getToken } = useClerkAuth(); // 🚨 Extract the getToken function
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
 
@@ -34,7 +36,7 @@ export default function ContributorSubmitPage() {
   // Status & UI State
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
-  const [showHelp, setShowHelp] = useState(false); // 🚨 New state for the dropdown guide
+  const [showHelp, setShowHelp] = useState(false); 
 
   useEffect(() => {
     setMounted(true);
@@ -64,9 +66,13 @@ export default function ContributorSubmitPage() {
     const fd = new FormData();
     fd.append("file", file);
 
+    const token = await getToken(); // 🚨 Retrieve the Clerk token
+
     const res = await fetch("https://api.etomu.com/api/upload", { 
       method: "POST",
-      credentials: "include",
+      headers: {
+        Authorization: `Bearer ${token}` // 🚨 Send the token to Hono
+      },
       body: fd
     });
 
@@ -91,10 +97,14 @@ export default function ContributorSubmitPage() {
         coverImageUrl = await uploadToR2(imageFile);
       }
 
+      const token = await getToken(); // 🚨 Retrieve the Clerk token
+
       const res = await fetch("https://api.etomu.com/api/posts/submissions", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}` // 🚨 Send the token to Hono
+        },
         body: JSON.stringify({
           title,
           slug,
@@ -244,7 +254,7 @@ export default function ContributorSubmitPage() {
           <div className="flex flex-col">
             <div className="flex items-center justify-between mb-2">
               <label className="block text-sm font-bold text-slate-700">Article Content (Markdown)</label>
-              
+
               {/* Toggle Button */}
               <button 
                 type="button" 
@@ -282,7 +292,7 @@ export default function ContributorSubmitPage() {
                     <p className="text-xs mt-1 text-slate-500">For images, use the picture icon in the editor toolbar.</p>
                   </div>
                 </div>
-                
+
                 {/* Close Button inside the box */}
                 <button 
                   type="button" 
